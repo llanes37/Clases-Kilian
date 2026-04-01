@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso SQL Nivel 0 - Academia Interactiva</title>
+  <style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+    :root {
+      --bg: #030712; 
+      --bg-deep: #020617;
+      --paper: rgba(15, 23, 42, 0.6); 
+      --paper-strong: rgba(15, 23, 42, 0.9);
+      --paper-soft: rgba(30, 41, 59, 0.5);
+      --ink: #f8fafc; 
+      --ink-soft: #94a3b8; 
+      --line: rgba(148, 163, 184, 0.15); 
+      --line-strong: rgba(148, 163, 184, 0.25);
+      --accent: #38bdf8; 
+      --accent-2: #10b981; 
+      --accent-3: #8b5cf6; 
+      --accent-4: #f59e0b; 
+      --ok: #10b981;
+      --warn: #eab308;
+      --bad: #ef4444;
+      --dark: #0f172a;
+      --dark-2: #1e293b;
+      --dark-3: #334155;
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      --shadow-soft: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      --glow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --max: 1360px;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    
+    body {
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.15), transparent),
+        radial-gradient(ellipse 60% 50% at 100% 60%, rgba(139, 92, 246, 0.1), transparent),
+        radial-gradient(ellipse 80% 50% at 0% 100%, rgba(16, 185, 129, 0.05), transparent);
+      background-attachment: fixed;
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+
+    /* Grid Overlay para darle toque "Base de Datos/Data" */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 80%);
+      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 80%);
+    }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    h1, h2, h3, h4, .display, .section-title {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+
+    code, pre, textarea {
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+    }
+    
+    section, .card, .hero-card, .module-card, .table-card, .dataset-card, .practice-card, .test-card, .note-card, .lab-card {
+      animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 15%;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(40px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .topbar {
+      position: sticky;
+      top: 15px;
+      z-index: 50;
+    }
+
+    .topbar-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      border-radius: 999px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-3));
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .topnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .topnav a,
+    .btn,
+    button {
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-sans);
+    }
+    
+    button { padding: 10px 18px; font-size: 0.9rem; }
+
+    .topnav a { background: transparent; color: var(--ink-soft); }
+    .topnav a:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
+
+    .primary { 
+        background: var(--ink); color: var(--bg); 
+        box-shadow: 0 4px 14px rgba(255,255,255,0.1); 
+    }
+    .primary:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 20px rgba(255,255,255,0.15); 
+    }
+
+    .secondary, button:not(.primary) { 
+        background: var(--paper-soft); color: var(--ink); 
+        border: 1px solid var(--line); 
+    }
+    .secondary:hover, button:not(.primary):hover { 
+        background: rgba(255,255,255,0.08); transform: translateY(-2px); 
+    }
+
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .page { max-width: var(--max); margin: 0 auto; padding: 40px 24px 96px; position: relative; }
+
+    .hero {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--paper);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      padding: 48px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) 420px;
+      gap: 40px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -50px;
+      bottom: -50px;
+      width: 250px;
+      height: 250px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.2), transparent 70%);
+      pointer-events: none;
+      filter: blur(20px);
+    }
+
+    .hero::before {
+      content: "SELECT  •  WHERE  •  JOIN  •  GROUP BY";
+      position: absolute;
+      right: 30px;
+      top: 30px;
+      color: rgba(255,255,255,0.05);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      pointer-events: none;
+    }
+
+    .hero > div:first-child { padding-right: 20px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 24px;
+    }
+
+    .display {
+      margin: 0 0 24px;
+      font-size: clamp(2.5rem, 5vw, 4.2rem);
+      line-height: 1.05;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .lead { max-width: 55ch; margin: 0 0 32px; color: var(--ink-soft); font-size: 1.1rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 16px; }
+    .hero-side { display: grid; gap: 20px; align-content: start; }
+
+    .hero-card, .card, .module-card, .table-card, .lab-card, .practice-card, .test-card, .note-card, .dataset-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--paper-2);
+      backdrop-filter: blur(10px);
+      padding: 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hero-side .hero-card:first-child { background: rgba(255,255,255,0.02); }
+    .hero-side .hero-card:last-child {
+      background: linear-gradient(145deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9));
+      border-color: rgba(56,189,248,0.2);
+    }
+    
+    .hero-side .hero-card:last-child .stat { background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.05); }
+
+    .hero-list { display: grid; gap: 12px; }
+    .hero-chip {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 14px 18px; border-radius: var(--radius-md);
+      border: 1px solid var(--line); background: rgba(255,255,255,0.03);
+      font-weight: 600; font-size: 0.95rem;
+    }
+
+    .hero-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .stat {
+      padding: 20px; border-radius: var(--radius-md);
+      border: 1px solid var(--line); background: rgba(255,255,255,0.02);
+    }
+    .stat strong {
+      display: block; font-size: 2rem; 
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    .stat span { color: var(--ink-soft); font-size: 0.9rem; }
+
+    .section { margin-top: 80px; position: relative; }
+    .section-header { margin-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: end; }
+    .section-title { margin: 0 0 12px; font-size: clamp(2rem, 4vw, 2.5rem); color: #fff;}
+    .section-copy { margin: 0; color: var(--ink-soft); max-width: 65ch; font-size: 1.1rem; }
+
+    .grid-2 { display: grid; gap: 24px; grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { display: grid; gap: 24px; grid-template-columns: repeat(3, 1fr); }
+    .lab-grid { display: grid; gap: 24px; grid-template-columns: 380px 1fr; align-items: start; }
+    .tables-grid { display: grid; gap: 24px; grid-template-columns: repeat(3, 1fr); }
+    .modules-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .practice-grid { display: grid; gap: 24px; grid-template-columns: repeat(2, 1fr); }
+    .notes-grid { display: grid; gap: 24px; grid-template-columns: repeat(3, 1fr); }
+    .test-grid { display: grid; gap: 24px; grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
+      padding: 4px 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
+      color: #fff; font-size: 0.8rem; font-weight: 600;
+    }
+
+    .table-visual { margin-top: 20px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--line); background: var(--dark); }
+    
+    .table-card:nth-child(1) { border-top: 3px solid var(--accent); }
+    .table-card:nth-child(2) { border-top: 3px solid var(--accent-2); }
+    .table-card:nth-child(3) { border-top: 3px solid var(--accent-3); }
+    
+    .table-visual table, .result-table table { width: 100%; border-collapse: collapse; font-size: 0.9rem; font-family: var(--font-mono); }
+    .table-visual th, .table-visual td, .result-table th, .result-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); text-align: left; color: var(--ink); }
+    .table-visual th, .result-table th { background: rgba(255,255,255,0.05); font-weight: 700; color: #fff;}
+
+    .rel-row {
+      display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 16px; align-items: center;
+      margin-top: 24px; color: var(--ink-soft); font-weight: 600; font-family: var(--font-mono); font-size: 0.9rem;
+    }
+    .link-pill {
+      padding: 10px 16px; border-radius: var(--radius-md);
+      background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: var(--accent-3);
+    }
+
+    .module-card:hover, .practice-card:hover, .note-card:hover, .table-card:hover, .hero-card:hover, .dataset-card:hover, .test-card:hover {
+      transform: translateY(-4px); box-shadow: var(--glow), 0 22px 46px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+    }
+
+    .module-card { min-height: 100%; }
+    .module-card .code-block, .practice-card .code-block { font-size: 0.85rem; line-height: 1.6; }
+
+    .module-card h3, .practice-card h3, .lab-card h3, .test-card h3, .dataset-card h3, .card h3 { margin-top: 0; margin-bottom: 12px; font-size: 1.3rem; color: #fff; }
+    .module-card p, .practice-card p, .lab-card p, .card p, .dataset-card p, .test-card p, .note-card p { margin: 0 0 16px; color: var(--ink-soft); }
+
+    .syntax-stack { display: grid; gap: 12px; margin-top: 16px; }
+    .syntax-line { padding: 14px 16px; border-radius: var(--radius-md); background: rgba(0,0,0,0.3); border: 1px solid var(--line); font-family: var(--font-mono); }
+    .syntax-line code { color: var(--accent); }
+
+    .lab-shell { display: grid; gap: 20px; }
+    .lab-toolbar { display: flex; flex-wrap: wrap; gap: 12px; }
+    .lab-toolbar button { background: rgba(255,255,255,0.05); border: 1px solid var(--line); font-weight: 600; }
+    .lab-toolbar button:hover { background: rgba(255,255,255,0.1); }
+    .lab-toolbar button.active { background: var(--accent-3); color: #fff; border-color: var(--accent-3); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); }
+
+    .lab-grid > .lab-card:first-child { position: sticky; top: 100px; }
+    .lab-grid > .lab-card:last-child { background: linear-gradient(180deg, rgba(15,23,42,0.6), rgba(2,6,23,0.8)); border-color: rgba(56,189,248,0.2); }
+    .lab-card:last-child > h3 { font-size: 1.5rem; display: flex; align-items: center; gap: 12px;}
+
+    .query-box {
+      width: 100%; min-height: 280px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1);
+      background: #000; color: #e2e8f0; padding: 20px; resize: vertical; font-size: 1rem; line-height: 1.6;
+      font-family: var(--font-mono); box-shadow: inset 0 5px 20px rgba(0,0,0,0.5); outline: none; transition: border-color 0.2s;
+    }
+    .query-box:focus { border-color: var(--accent); box-shadow: inset 0 5px 20px rgba(0,0,0,0.5), 0 0 0 2px rgba(56, 189, 248, 0.2); }
+
+    .lab-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 16px 0 0; }
+    .lab-status { font-weight: 700; color: var(--accent); font-family: var(--font-mono); font-size: 0.9rem; }
+
+    .console, .code-block {
+      margin-top: 16px; padding: 20px; border-radius: var(--radius-md);
+      background: #000; color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto;
+      white-space: pre-wrap; font-family: var(--font-mono); font-size: 0.9em; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .console { min-height: 140px; }
+    .code-block { color: var(--accent-2); } /* SQL syntax highlighting base */
+
+    #sqlResults { display: grid; gap: 16px; margin-top: 20px; }
+    .result-table { margin-top: 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--line); background: rgba(0,0,0,0.4); }
+    .result-table:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .result-table > div:first-child { background: rgba(255,255,255,0.05); padding: 12px 16px; font-weight: 600; border-bottom: 1px solid var(--line); color: #fff;}
+    .result-table tbody tr:nth-child(even), .table-visual tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    .result-table tbody tr:hover, .table-visual tbody tr:hover { background: rgba(56, 189, 248, 0.1); }
+
+    .practice-card details, .note-card details { margin-top: 16px; padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--line); background: rgba(0,0,0,0.3); }
+    .practice-card details[open], .note-card details[open] { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); }
+    summary { cursor: pointer; font-weight: 600; color: #fff; outline: none; }
+    details p { margin: 12px 0 0; font-size: 0.95rem; }
+
+    .question { padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--line); background: rgba(0,0,0,0.2); margin-bottom: 16px; }
+    .question h4 { margin: 0 0 16px; font-size: 1.1rem; color: #fff;}
+    .options { display: grid; gap: 10px; }
+    .option { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: rgba(255,255,255,0.02); cursor: pointer; transition: all 0.2s;}
+    .option:hover { background: rgba(255,255,255,0.05); }
+    .option input { transform: scale(1.3); accent-color: var(--accent); }
+
+    .test-result { margin-top: 24px; padding: 24px; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); display: none; }
+    .test-result.show { display: block; }
+    .score { margin: 0 0 12px; font-size: 3rem; font-weight: 800; color: #fff; line-height: 1; }
+
+    .footer-note { margin-top: 80px; padding: 32px; border-radius: var(--radius-xl); background: rgba(15, 23, 42, 0.8); border: 1px solid var(--line); text-align: center; }
+
+    @media (max-width: 1024px) {
+      .hero, .grid-2, .grid-3, .tables-grid, .practice-grid, .lab-grid, .notes-grid { grid-template-columns: 1fr; }
+      .topbar-inner { flex-direction: column; align-items: flex-start; border-radius: var(--radius-md); }
+      .lab-grid > .lab-card:first-child { position: static; }
+      .modules-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 24px 16px 60px; }
+      .hero, .hero-card, .card, .module-card, .table-card, .lab-card, .practice-card, .test-card, .note-card, .dataset-card { padding: 20px; }
+      .display { font-size: 2.5rem; }
+      .hero-stats { grid-template-columns: 1fr; }
+      .modules-grid, .practice-grid, .notes-grid { grid-template-columns: 1fr; }
+      .rel-row { grid-template-columns: 1fr; gap: 8px;}
+      .link-pill { width: fit-content; }
+    }
+
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">SQL</div>
+        <div>
+          <div>Curso SQL Nivel 0</div>
+          <small style="color: var(--ink-soft);">Academia interactiva complementaria del curso SQLite</small>
+        </div>
+      </div>
+      <nav class="topnav">
+        <a href="#mapa">Mapa</a>
+        <a href="#ruta">Ruta</a>
+        <a href="#lab">Laboratorio</a>
+        <a href="#practicas">Practicas</a>
+        <a href="#proyecto">Proyecto</a>
+        <a href="#test">Test</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">SQL desde cero de verdad, sin saltos raros</span>
+        <h1 class="display">Entiende tablas, pregunta datos y pierde el miedo a SQL.</h1>
+        <p class="lead">
+          Esta página complementa todo el curso de nivel 0 con una versión más visual e interactiva:
+          mapa del dataset, ruta por módulos, prácticas guiadas, soluciones ocultas, miniproyecto y un laboratorio SQL en navegador.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#lab">Ir al laboratorio</a>
+          <a class="btn secondary" href="#ruta">Ver la ruta del curso</a>
+        </div>
+      </div>
+
+      <div class="hero-side">
+        <section class="hero-card">
+          <h3 style="margin-top: 0;">Qué sabrás hacer al terminar</h3>
+          <div class="hero-list">
+            <div class="hero-chip"><span>Leer datos</span><code>SELECT</code></div>
+            <div class="hero-chip"><span>Filtrar</span><code>WHERE</code></div>
+            <div class="hero-chip"><span>Ordenar</span><code>ORDER BY + LIMIT</code></div>
+            <div class="hero-chip"><span>Crear e insertar</span><code>CREATE + INSERT</code></div>
+            <div class="hero-chip"><span>Relacionar</span><code>JOIN</code></div>
+            <div class="hero-chip"><span>Resumir</span><code>COUNT + GROUP BY</code></div>
+          </div>
+        </section>
+
+        <section class="hero-card">
+          <div class="hero-stats">
+            <div class="stat">
+              <strong>7</strong>
+              <span>pasos reales de aprendizaje</span>
+            </div>
+            <div class="stat">
+              <strong>3</strong>
+              <span>tablas base del dataset</span>
+            </div>
+            <div class="stat">
+              <strong>10</strong>
+              <span>retos de mini test</span>
+            </div>
+            <div class="stat">
+              <strong>1</strong>
+              <span>miniproyecto final</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="section" id="mapa">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Mapa visual del dataset</h2>
+          <p class="section-copy">
+            Antes de hacer consultas, hay que entender qué datos existen. Este curso gira alrededor de una biblioteca con tres tablas base.
+          </p>
+        </div>
+      </div>
+
+      <div class="tables-grid">
+        <article class="table-card">
+          <div class="tag-row">
+            <span class="tag">Tabla base</span>
+            <span class="tag">6 filas</span>
+          </div>
+          <h3>socios</h3>
+          <p>Personas que pueden pedir libros prestados. Aquí ya tienes casos útiles para practicar <code>WHERE</code> y <code>IS NULL</code>.</p>
+          <div class="table-visual">
+            <table>
+              <thead>
+                <tr><th>socio_id</th><th>nombre</th><th>ciudad</th><th>telefono</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>Ana Ruiz</td><td>Madrid</td><td>600111111</td></tr>
+                <tr><td>2</td><td>Luis Perez</td><td>Sevilla</td><td>NULL</td></tr>
+                <tr><td>3</td><td>Marta Gil</td><td>Madrid</td><td>600333333</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="table-card">
+          <div class="tag-row">
+            <span class="tag">Tabla base</span>
+            <span class="tag">6 filas</span>
+          </div>
+          <h3>libros</h3>
+          <p>Libros con género, páginas y disponibilidad. Es la tabla perfecta para <code>SELECT</code>, <code>ORDER BY</code> y <code>LIMIT</code>.</p>
+          <div class="table-visual">
+            <table>
+              <thead>
+                <tr><th>libro_id</th><th>titulo</th><th>genero</th><th>paginas</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>El bosque azul</td><td>Fantasia</td><td>220</td></tr>
+                <tr><td>2</td><td>SQL para principiantes</td><td>Tecnologia</td><td>180</td></tr>
+                <tr><td>3</td><td>Viaje al centro</td><td>Aventura</td><td>310</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="table-card">
+          <div class="tag-row">
+            <span class="tag">Tabla base</span>
+            <span class="tag">5 filas</span>
+          </div>
+          <h3>prestamos</h3>
+          <p>La tabla que conecta socios con libros. Aquí está el salto mental hacia <code>JOIN</code>.</p>
+          <div class="table-visual">
+            <table>
+              <thead>
+                <tr><th>prestamo_id</th><th>socio_id</th><th>libro_id</th><th>devuelto</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>1</td><td>2</td><td>NO</td></tr>
+                <tr><td>2</td><td>2</td><td>4</td><td>SI</td></tr>
+                <tr><td>3</td><td>1</td><td>3</td><td>SI</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <div class="dataset-card" style="margin-top: 16px;">
+        <h3 style="margin-top: 0;">Cómo se relacionan</h3>
+        <p style="margin-bottom: 0;">La tabla <code>prestamos</code> guarda ids. Con <code>JOIN</code> conviertes esos ids en nombres y títulos legibles.</p>
+        <div class="rel-row">
+          <div class="link-pill">socios.socio_id</div>
+          <div>se une con</div>
+          <div class="link-pill">prestamos.socio_id</div>
+          <div>y también con</div>
+          <div class="link-pill">libros.libro_id / prestamos.libro_id</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ruta">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Ruta completa del curso</h2>
+          <p class="section-copy">
+            Esta secuencia sigue el orden real del curso y el mismo enfoque: primero leer, luego filtrar, después ordenar, crear, unir y agrupar.
+          </p>
+        </div>
+      </div>
+
+      <div class="modules-grid">
+        <article class="module-card">
+          <div class="tag-row"><span class="tag">Paso 0</span><span class="tag">Reset</span></div>
+          <h3>Preparar la base</h3>
+          <p>Ejecuta el script base para crear las tablas <code>socios</code>, <code>libros</code> y <code>prestamos</code> con datos de ejemplo.</p>
+          <div class="code-block">scripts/00_reset_biblioteca_nivel0.sql</div>
+        </article>
+
+        <article class="module-card">
+          <div class="tag-row"><span class="tag">Paso 1</span><span class="tag">SELECT</span></div>
+          <h3>Ver datos</h3>
+          <p>Aprendes a leer tablas completas y a elegir columnas concretas sin tocar los datos.</p>
+          <div class="syntax-stack">
+            <div class="syntax-line"><code>SELECT * FROM socios;</code></div>
+            <div class="syntax-line"><code>SELECT nombre, ciudad FROM socios;</code></div>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="tag-row"><span class="tag">Paso 2</span><span class="tag">WHERE</span></div>
+          <h3>Filtrar filas</h3>
+          <p>Texto con comillas, <code>IS NULL</code> para vacíos y <code>LIKE</code> para patrones.</p>
+          <div class="syntax-stack">
+            <div class="syntax-line"><code>WHERE ciudad = 'Madrid'</code></div>
+            <div class="syntax-line"><code>WHERE telefono IS NULL</code></div>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="tag-row"><span class="tag">Paso 3</span><span class="tag">ORDER BY</span></div>
+          <h3>Ordenar y limitar</h3>
+          <p>Sacas antes lo más interesante: top libros, fechas recientes o primeros resultados.</p>
+          <div class="syntax-stack">
+            <div class="syntax-line"><code>ORDER BY paginas DESC</code></div>
+            <div class="syntax-line"><code>LIMIT 3</code></div>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="tag-row"><span class="tag">Paso 4</span><span class="tag">CREATE + INSERT</span></div>
+          <h3>Crear e insertar</h3>
+          <p>Construyes tablas sencillas nuevas y metes filas propias para entender la estructura de verdad.</p>
+          <div class="syntax-stack">
+            <div class="syntax-line"><code>CREATE TABLE salas_estudio (...)</code></div>
+            <div class="syntax-line"><code>INSERT INTO salas_estudio (...) VALUES (...)</code></div>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="tag-row"><span class="tag">Paso 5</span><span class="tag">JOIN</span></div>
+          <h3>Relacionar tablas</h3>
+          <p>Dejas de ver ids sueltos y empiezas a ver personas y libros unidos en una consulta comprensible.</p>
+          <div class="syntax-stack">
+            <div class="syntax-line"><code>FROM prestamos p JOIN socios s ON ...</code></div>
+            <div class="syntax-line"><code>JOIN libros l ON ...</code></div>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="tag-row"><span class="tag">Paso 6</span><span class="tag">GROUP BY</span></div>
+          <h3>Contar y agrupar</h3>
+          <p>Pasas de mirar fila por fila a resumir información con <code>COUNT(*)</code> y <code>GROUP BY</code>.</p>
+          <div class="syntax-stack">
+            <div class="syntax-line"><code>SELECT COUNT(*) FROM libros;</code></div>
+            <div class="syntax-line"><code>SELECT genero, COUNT(*) FROM libros GROUP BY genero;</code></div>
+          </div>
+        </article>
+
+        <article class="module-card">
+          <div class="tag-row"><span class="tag">Paso 7</span><span class="tag">Proyecto</span></div>
+          <h3>Mini proyecto final</h3>
+          <p>Demuestras que ya puedes consultar, filtrar, ordenar, unir, contar y crear una tabla propia.</p>
+          <div class="code-block">scripts/99_miniproyecto_final.sql</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="lab">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Laboratorio SQL</h2>
+          <p class="section-copy">
+            Este laboratorio ejecuta un subconjunto realista del SQL que aparece en el curso: <code>SELECT</code>,
+            <code>WHERE</code>, <code>ORDER BY</code>, <code>LIMIT</code>, <code>JOIN</code>, <code>GROUP BY</code>,
+            además de <code>DROP TABLE</code>, <code>CREATE TABLE</code> e <code>INSERT</code> sencillos.
+          </p>
+        </div>
+      </div>
+
+      <div class="lab-grid">
+        <article class="lab-card">
+          <h3 style="margin-top: 0;">Consultas rápidas</h3>
+          <p>Estas plantillas cargan ejemplos alineados con cada bloque del curso.</p>
+          <div class="lab-toolbar" id="queryPresets">
+            <button type="button" class="active" data-sql-preset="select">SELECT</button>
+            <button type="button" data-sql-preset="where">WHERE</button>
+            <button type="button" data-sql-preset="order">ORDER BY</button>
+            <button type="button" data-sql-preset="join">JOIN</button>
+            <button type="button" data-sql-preset="group">GROUP BY</button>
+            <button type="button" data-sql-preset="create">CREATE + INSERT</button>
+          </div>
+
+          <div class="note-card" style="margin-top: 16px;">
+            <h3 style="margin-top: 0;">Reglas del laboratorio</h3>
+            <ul style="margin: 10px 0 0; padding-left: 18px; color: var(--ink-soft);">
+              <li>Texto siempre con comillas simples: <code>'Madrid'</code>.</li>
+              <li><code>NULL</code> se consulta con <code>IS NULL</code>.</li>
+              <li>El dataset base se puede restaurar con el botón de reinicio.</li>
+              <li>Puedes ejecutar varias sentencias separadas por <code>;</code>.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="lab-card">
+          <h3 style="margin-top: 0;">Editor y resultados</h3>
+          <textarea class="query-box" id="sqlEditor" spellcheck="false"></textarea>
+          <div class="lab-actions" style="margin-top: 12px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+              <button type="button" class="primary" id="runSql">Ejecutar SQL</button>
+              <button type="button" class="secondary" id="resetDb">Reset dataset</button>
+              <button type="button" class="secondary" id="loadMiniProject">Cargar mini proyecto</button>
+            </div>
+            <div class="lab-status" id="labStatus">Dataset listo</div>
+          </div>
+          <div class="console" id="sqlConsole">SQLite Nivel 0 listo.
+Usa los presets o escribe tus propias consultas.</div>
+          <div id="sqlResults"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="practicas">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Prácticas del curso</h2>
+          <p class="section-copy">
+            Aquí tienes el recorrido completo del curso convertido en tarjetas de estudio: misión, ideas clave, script base y solución desplegable.
+          </p>
+        </div>
+      </div>
+
+      <div class="practice-grid">
+        <article class="practice-card">
+          <div class="tag-row"><span class="tag">Práctica 01</span><span class="tag">SELECT</span></div>
+          <h3>Ver datos con SELECT</h3>
+          <p>Leer sin tocar. Sacar columnas concretas y empezar a sentir comodidad con una tabla.</p>
+          <div class="code-block">SELECT * FROM socios;
+SELECT nombre, ciudad FROM socios;
+SELECT titulo AS libro, genero AS tipo FROM libros;</div>
+          <details>
+            <summary>Ver solución resumida</summary>
+            <div class="code-block">SELECT * FROM libros;
+SELECT nombre, ciudad FROM socios;
+SELECT titulo, paginas FROM libros;
+SELECT titulo AS libro, genero AS tipo FROM libros;
+SELECT prestamo_id, fecha_prestamo FROM prestamos;</div>
+          </details>
+        </article>
+
+        <article class="practice-card">
+          <div class="tag-row"><span class="tag">Práctica 02</span><span class="tag">WHERE</span></div>
+          <h3>Buscar y filtrar</h3>
+          <p>Texto con comillas, números con comparadores y vacíos con <code>IS NULL</code>.</p>
+          <div class="code-block">SELECT nombre, ciudad
+FROM socios
+WHERE ciudad = 'Madrid';</div>
+          <details>
+            <summary>Ver solución resumida</summary>
+            <div class="code-block">SELECT titulo FROM libros WHERE genero = 'Fantasia';
+SELECT titulo, paginas FROM libros WHERE paginas &gt; 200;
+SELECT nombre, telefono FROM socios WHERE telefono IS NULL;
+SELECT prestamo_id, devuelto FROM prestamos WHERE devuelto = 'NO';
+SELECT nombre FROM socios WHERE nombre LIKE 'A%';</div>
+          </details>
+        </article>
+
+        <article class="practice-card">
+          <div class="tag-row"><span class="tag">Práctica 03</span><span class="tag">ORDER BY</span></div>
+          <h3>Ordenar y limitar</h3>
+          <p>Aprendes a pedir primero lo más relevante y a crear tops de resultados.</p>
+          <div class="code-block">SELECT titulo, paginas
+FROM libros
+ORDER BY paginas DESC
+LIMIT 3;</div>
+          <details>
+            <summary>Ver solución resumida</summary>
+            <div class="code-block">SELECT nombre, ciudad FROM socios ORDER BY nombre ASC;
+SELECT titulo, paginas FROM libros ORDER BY paginas ASC;
+SELECT titulo, paginas FROM libros ORDER BY paginas DESC LIMIT 3;
+SELECT prestamo_id, fecha_prestamo FROM prestamos ORDER BY fecha_prestamo DESC;</div>
+          </details>
+        </article>
+
+        <article class="practice-card">
+          <div class="tag-row"><span class="tag">Práctica 04</span><span class="tag">CREATE + INSERT</span></div>
+          <h3>Crear tablas e insertar</h3>
+          <p>Dejas de ser solo lector de datos y pasas a crear estructuras nuevas tú mismo.</p>
+          <div class="code-block">CREATE TABLE IF NOT EXISTS salas_estudio (
+  sala_id INTEGER PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  plazas INTEGER NOT NULL
+);</div>
+          <details>
+            <summary>Ver solución resumida</summary>
+            <div class="code-block">DROP TABLE IF EXISTS talleres;
+DROP TABLE IF EXISTS salas_estudio;
+CREATE TABLE IF NOT EXISTS salas_estudio (...);
+INSERT INTO salas_estudio (...) VALUES (1, 'Sala Norte', 12);
+INSERT INTO salas_estudio (...) VALUES (2, 'Sala Centro', 8), (3, 'Sala Silencio', 20);
+CREATE TABLE IF NOT EXISTS talleres (...);
+INSERT INTO talleres (...) VALUES (1, 'Lectura rapida', 2), (2, 'Club de misterio', 1);</div>
+          </details>
+        </article>
+
+        <article class="practice-card">
+          <div class="tag-row"><span class="tag">Práctica 05</span><span class="tag">JOIN</span></div>
+          <h3>Relacionar tablas</h3>
+          <p>El salto importante: dejar de ver ids sueltos y ver información humana en una única salida.</p>
+          <div class="code-block">SELECT p.prestamo_id, s.nombre, l.titulo
+FROM prestamos p
+JOIN socios s ON p.socio_id = s.socio_id
+JOIN libros l ON p.libro_id = l.libro_id;</div>
+          <details>
+            <summary>Ver solución resumida</summary>
+            <div class="code-block">SELECT p.prestamo_id, s.nombre, p.fecha_prestamo
+FROM prestamos p
+JOIN socios s ON p.socio_id = s.socio_id;
+
+SELECT s.nombre, l.titulo, p.fecha_prestamo
+FROM prestamos p
+JOIN socios s ON p.socio_id = s.socio_id
+JOIN libros l ON p.libro_id = l.libro_id
+WHERE p.devuelto = 'NO';</div>
+          </details>
+        </article>
+
+        <article class="practice-card">
+          <div class="tag-row"><span class="tag">Práctica 06</span><span class="tag">GROUP BY</span></div>
+          <h3>Contar y agrupar</h3>
+          <p>Pasas de mirar filas sueltas a resumir el dataset con agrupaciones y conteos.</p>
+          <div class="code-block">SELECT genero, COUNT(*) AS total_libros
+FROM libros
+GROUP BY genero;</div>
+          <details>
+            <summary>Ver solución resumida</summary>
+            <div class="code-block">SELECT COUNT(*) AS total_libros FROM libros;
+SELECT COUNT(*) AS total_prestamos FROM prestamos;
+SELECT genero, COUNT(*) AS total_libros FROM libros GROUP BY genero;
+SELECT devuelto, COUNT(*) AS total_prestamos FROM prestamos GROUP BY devuelto;
+SELECT s.nombre, COUNT(*) AS total_prestamos
+FROM prestamos p
+JOIN socios s ON p.socio_id = s.socio_id
+GROUP BY s.nombre
+ORDER BY total_prestamos DESC;</div>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="proyecto">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Mini proyecto final</h2>
+          <p class="section-copy">
+            El cierre del nivel 0 mezcla todo lo anterior: leer, filtrar, ordenar, unir, contar y crear una tabla propia.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <article class="practice-card">
+          <div class="tag-row"><span class="tag">scripts/99_miniproyecto_final.sql</span></div>
+          <h3>Objetivos de entrega</h3>
+          <ul style="margin: 10px 0 0; padding-left: 18px; color: var(--ink-soft);">
+            <li>Mostrar libros con título y género.</li>
+            <li>Sacar socios de Madrid y socios sin teléfono.</li>
+            <li>Calcular top 2 libros más largos.</li>
+            <li>Mostrar préstamos no devueltos con nombre y título.</li>
+            <li>Contar socios y libros por género.</li>
+            <li>Crear la tabla <code>ordenadores</code> e insertar 3 filas.</li>
+          </ul>
+        </article>
+
+        <article class="practice-card">
+          <h3>Solución resumida</h3>
+          <div class="code-block">SELECT titulo, genero FROM libros;
+SELECT nombre, ciudad FROM socios WHERE ciudad = 'Madrid';
+SELECT titulo, paginas FROM libros ORDER BY paginas DESC LIMIT 2;
+SELECT nombre, telefono FROM socios WHERE telefono IS NULL;
+SELECT p.prestamo_id, s.nombre, l.titulo
+FROM prestamos p
+JOIN socios s ON p.socio_id = s.socio_id
+JOIN libros l ON p.libro_id = l.libro_id
+WHERE p.devuelto = 'NO';
+SELECT genero, COUNT(*) AS total_libros FROM libros GROUP BY genero;
+CREATE TABLE IF NOT EXISTS ordenadores (
+  ordenador_id INTEGER PRIMARY KEY,
+  aula TEXT NOT NULL,
+  operativo TEXT NOT NULL
+);</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Errores típicos y arreglo rápido</h2>
+          <p class="section-copy">Estos son exactamente los errores que más bloquean al empezar. Tenerlos visibles ahorra mucho tiempo.</p>
+        </div>
+      </div>
+
+      <div class="notes-grid">
+        <article class="note-card">
+          <h3>"no such table"</h3>
+          <p>Normalmente significa que no has ejecutado el script base de reset.</p>
+          <div class="code-block">Ejecuta: scripts/00_reset_biblioteca_nivel0.sql</div>
+        </article>
+        <article class="note-card">
+          <h3>"no such column"</h3>
+          <p>Revisa el nombre de la columna. SQL no adivina si escribes mal <code>fecha_prestamo</code> o <code>telefono</code>.</p>
+        </article>
+        <article class="note-card">
+          <h3><code>= NULL</code></h3>
+          <p>Eso no funciona. Para vacíos reales se usa <code>IS NULL</code>.</p>
+          <div class="code-block">SELECT nombre FROM socios WHERE telefono IS NULL;</div>
+        </article>
+        <article class="note-card">
+          <h3>Texto sin comillas</h3>
+          <p>Para valores de texto necesitas comillas simples.</p>
+          <div class="code-block">WHERE ciudad = 'Madrid'</div>
+        </article>
+        <article class="note-card">
+          <h3>No salen filas</h3>
+          <p>No siempre es error. Puede que tu filtro no coincida con los datos del dataset.</p>
+        </article>
+        <article class="note-card">
+          <h3><code>UNIQUE constraint failed</code></h3>
+          <p>En prácticas de creación e inserción suele significar que repetiste una clave primaria ya usada.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="test">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Test final de autoevaluación</h2>
+          <p class="section-copy">
+            Si resuelves bien este bloque y además puedes escribir varias consultas en el laboratorio sin copiar, ya sales del nivel 0 real.
+          </p>
+        </div>
+      </div>
+
+      <div class="test-grid">
+        <section class="test-card">
+          <form id="quizForm">
+            <div class="question">
+              <h4>1. ¿Qué sentencia se usa para leer datos sin modificar la tabla?</h4>
+              <div class="options">
+                <label class="option"><input type="radio" name="q1" value="a"> <span><code>SELECT</code></span></label>
+                <label class="option"><input type="radio" name="q1" value="b"> <span><code>INSERT</code></span></label>
+                <label class="option"><input type="radio" name="q1" value="c"> <span><code>DROP</code></span></label>
+              </div>
+            </div>
+
+            <div class="question">
+              <h4>2. ¿Cómo se filtran socios de Madrid?</h4>
+              <div class="options">
+                <label class="option"><input type="radio" name="q2" value="a"> <span><code>WHERE ciudad = Madrid</code></span></label>
+                <label class="option"><input type="radio" name="q2" value="b"> <span><code>WHERE ciudad = 'Madrid'</code></span></label>
+                <label class="option"><input type="radio" name="q2" value="c"> <span><code>WHERE ciudad IS Madrid</code></span></label>
+              </div>
+            </div>
+
+            <div class="question">
+              <h4>3. ¿Qué operador se usa para detectar valores vacíos reales?</h4>
+              <div class="options">
+                <label class="option"><input type="radio" name="q3" value="a"> <span><code>= NULL</code></span></label>
+                <label class="option"><input type="radio" name="q3" value="b"> <span><code>IS NULL</code></span></label>
+                <label class="option"><input type="radio" name="q3" value="c"> <span><code>LIKE NULL</code></span></label>
+              </div>
+            </div>
+
+            <div class="question">
+              <h4>4. ¿Qué cláusula ordena resultados?</h4>
+              <div class="options">
+                <label class="option"><input type="radio" name="q4" value="a"> <span><code>ORDER BY</code></span></label>
+                <label class="option"><input type="radio" name="q4" value="b"> <span><code>GROUP BY</code></span></label>
+                <label class="option"><input type="radio" name="q4" value="c"> <span><code>VALUES</code></span></label>
+              </div>
+            </div>
+
+            <div class="question">
+              <h4>5. ¿Qué cláusula limita el número de filas devueltas?</h4>
+              <div class="options">
+                <label class="option"><input type="radio" name="q5" value="a"> <span><code>LIMIT</code></span></label>
+                <label class="option"><input type="radio" name="q5" value="b"> <span><code>COUNT</code></span></label>
+                <label class="option"><input type="radio" name="q5" value="c"> <span><code>JOIN</code></span></label>
+              </div>
+            </div>
+
+            <div class="question">
+              <h4>6. ¿Para qué sirve un <code>JOIN</code> en este curso?</h4>
+              <div class="options">
+                <label class="option"><input type="radio" name="q6" value="a"> <span>Para borrar tablas.</span></label>
+                <label class="option"><input type="radio" name="q6" value="b"> <span>Para unir tablas y dejar de ver ids sueltos.</span></label>
+                <label class="option"><input type="radio" name="q6" value="c"> <span>Para limitar resultados.</span></label>
+              </div>
+            </div>
+          </form>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+            <button type="button" class="primary" id="gradeQuiz">Corregir test</button>
+            <button type="button" class="secondary" id="resetQuiz">Reiniciar</button>
+          </div>
+
+          <div class="test-result" id="quizResult">
+            <div class="score" id="scoreText">0/6</div>
+            <p id="scoreMessage"></p>
+            <ul id="scoreDetails" style="margin: 10px 0 0; padding-left: 18px;"></ul>
+          </div>
+        </section>
+
+        <aside class="test-card">
+          <h3 style="margin-top: 0;">Mini checklist final</h3>
+          <ul style="margin: 10px 0 0; padding-left: 18px; color: var(--ink-soft);">
+            <li>Puedes sacar columnas concretas con <code>SELECT</code>.</li>
+            <li>Puedes filtrar por texto, número y <code>NULL</code>.</li>
+            <li>Puedes ordenar y hacer un top con <code>LIMIT</code>.</li>
+            <li>Puedes leer un <code>JOIN</code> básico con aliases.</li>
+            <li>Puedes contar filas y agrupar por una columna.</li>
+            <li>Puedes crear una tabla sencilla e insertar datos.</li>
+          </ul>
+          <div class="code-block">Chuleta mínima:
+SELECT * FROM tabla;
+SELECT col1, col2 FROM tabla;
+SELECT * FROM tabla WHERE col = 'texto';
+SELECT * FROM tabla WHERE col IS NULL;
+SELECT * FROM tabla ORDER BY col DESC LIMIT 3;
+SELECT * FROM a JOIN b ON a.id = b.a_id;
+SELECT COUNT(*) FROM tabla;
+SELECT col, COUNT(*) FROM tabla GROUP BY col;</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="footer-note">
+      <p>
+        Complemento recomendado: primero revisa el mapa, luego practica cada bloque en el laboratorio y termina el miniproyecto sin mirar soluciones.
+        Si fallas, vuelve al módulo concreto y repite solo esa parte.
+      </p>
+    </section>
+  </main>
+  <script>
+    const BASE_DB = {
+      socios: {
+        columns: ["socio_id", "nombre", "ciudad", "telefono"],
+        rows: [
+          { socio_id: 1, nombre: "Ana Ruiz", ciudad: "Madrid", telefono: "600111111" },
+          { socio_id: 2, nombre: "Luis Perez", ciudad: "Sevilla", telefono: null },
+          { socio_id: 3, nombre: "Marta Gil", ciudad: "Madrid", telefono: "600333333" },
+          { socio_id: 4, nombre: "Diego Leon", ciudad: "Valencia", telefono: "600444444" },
+          { socio_id: 5, nombre: "Elena Soto", ciudad: "Bilbao", telefono: null },
+          { socio_id: 6, nombre: "Pablo Marin", ciudad: "Malaga", telefono: "600666666" }
+        ]
+      },
+      libros: {
+        columns: ["libro_id", "titulo", "genero", "paginas", "disponible"],
+        rows: [
+          { libro_id: 1, titulo: "El bosque azul", genero: "Fantasia", paginas: 220, disponible: "SI" },
+          { libro_id: 2, titulo: "SQL para principiantes", genero: "Tecnologia", paginas: 180, disponible: "NO" },
+          { libro_id: 3, titulo: "Viaje al centro", genero: "Aventura", paginas: 310, disponible: "SI" },
+          { libro_id: 4, titulo: "La ultima clase", genero: "Drama", paginas: 140, disponible: "NO" },
+          { libro_id: 5, titulo: "Cuentos del norte", genero: "Fantasia", paginas: 95, disponible: "SI" },
+          { libro_id: 6, titulo: "Aprender tablas", genero: "Tecnologia", paginas: 260, disponible: "SI" }
+        ]
+      },
+      prestamos: {
+        columns: ["prestamo_id", "socio_id", "libro_id", "fecha_prestamo", "devuelto"],
+        rows: [
+          { prestamo_id: 1, socio_id: 1, libro_id: 2, fecha_prestamo: "2026-02-10", devuelto: "NO" },
+          { prestamo_id: 2, socio_id: 2, libro_id: 4, fecha_prestamo: "2026-02-11", devuelto: "SI" },
+          { prestamo_id: 3, socio_id: 1, libro_id: 3, fecha_prestamo: "2026-02-12", devuelto: "SI" },
+          { prestamo_id: 4, socio_id: 3, libro_id: 2, fecha_prestamo: "2026-02-14", devuelto: "NO" },
+          { prestamo_id: 5, socio_id: 4, libro_id: 1, fecha_prestamo: "2026-02-15", devuelto: "SI" }
+        ]
+      }
+    };
+
+    const PRESET_QUERIES = {
+      select: "SELECT * FROM socios;\n\nSELECT nombre, ciudad FROM socios;\nSELECT titulo AS libro, genero AS tipo FROM libros;",
+      where: "SELECT nombre, ciudad\nFROM socios\nWHERE ciudad = 'Madrid';\n\nSELECT nombre, telefono\nFROM socios\nWHERE telefono IS NULL;\n\nSELECT titulo, paginas\nFROM libros\nWHERE paginas > 200;",
+      order: "SELECT titulo, paginas\nFROM libros\nORDER BY paginas DESC\nLIMIT 3;\n\nSELECT prestamo_id, fecha_prestamo\nFROM prestamos\nORDER BY fecha_prestamo DESC;",
+      join: "SELECT p.prestamo_id, s.nombre, l.titulo, p.devuelto\nFROM prestamos p\nJOIN socios s ON p.socio_id = s.socio_id\nJOIN libros l ON p.libro_id = l.libro_id\nWHERE p.devuelto = 'NO';",
+      group: "SELECT genero, COUNT(*) AS total_libros\nFROM libros\nGROUP BY genero;\n\nSELECT s.nombre, COUNT(*) AS total_prestamos\nFROM prestamos p\nJOIN socios s ON p.socio_id = s.socio_id\nGROUP BY s.nombre\nORDER BY total_prestamos DESC;",
+      create: "DROP TABLE IF EXISTS salas_estudio;\n\nCREATE TABLE IF NOT EXISTS salas_estudio (\n  sala_id INTEGER PRIMARY KEY,\n  nombre TEXT NOT NULL,\n  plazas INTEGER NOT NULL\n);\n\nINSERT INTO salas_estudio (sala_id, nombre, plazas)\nVALUES (1, 'Sala Norte', 12), (2, 'Sala Centro', 8), (3, 'Sala Silencio', 20);\n\nSELECT * FROM salas_estudio;"
+    };
+
+    const MINI_PROJECT_SQL = "SELECT titulo, genero FROM libros;\n\nSELECT nombre, ciudad FROM socios WHERE ciudad = 'Madrid';\n\nSELECT titulo, paginas FROM libros ORDER BY paginas DESC LIMIT 2;\n\nSELECT nombre, telefono FROM socios WHERE telefono IS NULL;\n\nSELECT p.prestamo_id, s.nombre, l.titulo\nFROM prestamos p\nJOIN socios s ON p.socio_id = s.socio_id\nJOIN libros l ON p.libro_id = l.libro_id\nWHERE p.devuelto = 'NO';\n\nSELECT genero, COUNT(*) AS total_libros\nFROM libros\nGROUP BY genero;\n\nDROP TABLE IF EXISTS ordenadores;\nCREATE TABLE IF NOT EXISTS ordenadores (\n  ordenador_id INTEGER PRIMARY KEY,\n  aula TEXT NOT NULL,\n  operativo TEXT NOT NULL\n);\nINSERT INTO ordenadores (ordenador_id, aula, operativo)\nVALUES (1, 'Aula 1', 'Windows'), (2, 'Aula 2', 'Linux'), (3, 'Biblioteca', 'Windows');\nSELECT * FROM ordenadores;";
+
+    let db = cloneDb(BASE_DB);
+
+    const sqlEditor = document.getElementById("sqlEditor");
+    const sqlConsole = document.getElementById("sqlConsole");
+    const sqlResults = document.getElementById("sqlResults");
+    const labStatus = document.getElementById("labStatus");
+    const runSql = document.getElementById("runSql");
+    const resetDb = document.getElementById("resetDb");
+    const loadMiniProject = document.getElementById("loadMiniProject");
+    const presetButtons = document.querySelectorAll("[data-sql-preset]");
+
+    function cloneDb(source) {
+      return JSON.parse(JSON.stringify(source));
+    }
+
+    function splitStatements(sql) {
+      return sql
+        .split(";")
+        .map((part) => part.trim())
+        .filter(Boolean);
+    }
+
+    function setConsole(lines) {
+      sqlConsole.textContent = lines.join("\n");
+    }
+
+    function setStatus(message) {
+      labStatus.textContent = message;
+    }
+
+    function renderTable(title, rows) {
+      const wrapper = document.createElement("section");
+      wrapper.className = "result-table";
+
+      const heading = document.createElement("div");
+      heading.style.padding = "12px 14px";
+      heading.style.borderBottom = "1px solid rgba(52,43,33,0.08)";
+      heading.style.fontWeight = "800";
+      heading.textContent = title;
+      wrapper.appendChild(heading);
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const tbody = document.createElement("tbody");
+
+      const cols = rows.length ? Object.keys(rows[0]) : [];
+      const trHead = document.createElement("tr");
+      cols.forEach((col) => {
+        const th = document.createElement("th");
+        th.textContent = col;
+        trHead.appendChild(th);
+      });
+      thead.appendChild(trHead);
+
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        cols.forEach((col) => {
+          const td = document.createElement("td");
+          td.textContent = row[col] === null ? "NULL" : String(row[col]);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+      sqlResults.appendChild(wrapper);
+    }
+
+    function clearResults() {
+      sqlResults.innerHTML = "";
+    }
+
+    function parseValue(raw) {
+      const value = raw.trim();
+      if (/^'.*'$/.test(value)) {
+        return value.slice(1, -1);
+      }
+      if (/^null$/i.test(value)) {
+        return null;
+      }
+      if (/^-?\d+$/.test(value)) {
+        return Number(value);
+      }
+      return value;
+    }
+
+    function splitCsv(input) {
+      const out = [];
+      let current = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < input.length; i += 1) {
+        const char = input[i];
+        if (char === "'" && input[i - 1] !== "\\") {
+          inQuotes = !inQuotes;
+          current += char;
+        } else if (char === "," && !inQuotes) {
+          out.push(current.trim());
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+
+      if (current.trim()) {
+        out.push(current.trim());
+      }
+
+      return out;
+    }
+
+    function getCell(row, ref) {
+      if (row[ref] !== undefined) {
+        return row[ref];
+      }
+      const clean = ref.includes(".") ? ref.split(".")[1] : ref;
+      if (row[clean] !== undefined) {
+        return row[clean];
+      }
+      const match = Object.keys(row).find((key) => key.endsWith("." + clean));
+      return match ? row[match] : undefined;
+    }
+
+    function evaluateCondition(row, condition) {
+      const trimmed = condition.trim();
+
+      const isNullMatch = trimmed.match(/^([\w.]+)\s+IS\s+NULL$/i);
+      if (isNullMatch) {
+        return getCell(row, isNullMatch[1]) == null;
+      }
+
+      const likeMatch = trimmed.match(/^([\w.]+)\s+LIKE\s+'(.+)'$/i);
+      if (likeMatch) {
+        const value = String(getCell(row, likeMatch[1]) ?? "");
+        const pattern = likeMatch[2];
+        if (pattern.endsWith("%")) {
+          return value.startsWith(pattern.slice(0, -1));
+        }
+        return value === pattern;
+      }
+
+      const compareMatch = trimmed.match(/^([\w.]+)\s*(=|>|<)\s*(.+)$/);
+      if (compareMatch) {
+        const left = getCell(row, compareMatch[1]);
+        const right = parseValue(compareMatch[3]);
+        if (compareMatch[2] === "=") {
+          return left === right;
+        }
+        if (compareMatch[2] === ">") {
+          return Number(left) > Number(right);
+        }
+        if (compareMatch[2] === "<") {
+          return Number(left) < Number(right);
+        }
+      }
+
+      throw new Error("Condicion no soportada: " + condition);
+    }
+
+    function projectRow(row, selectParts) {
+      const out = {};
+      selectParts.forEach((part) => {
+        const aliasMatch = part.match(/^(.+?)\s+AS\s+(\w+)$/i);
+        if (aliasMatch) {
+          out[aliasMatch[2]] = getCell(row, aliasMatch[1].trim());
+          return;
+        }
+
+        const clean = part.trim();
+        const key = clean.includes(".") ? clean.split(".")[1] : clean;
+        out[key] = getCell(row, clean);
+      });
+      return out;
+    }
+
+    function fromTable(tableName, alias) {
+      if (!db[tableName]) {
+        throw new Error("no such table: " + tableName);
+      }
+      return db[tableName].rows.map((row) => {
+        const out = {};
+        db[tableName].columns.forEach((col) => {
+          out[(alias || tableName) + "." + col] = row[col];
+          out[col] = row[col];
+        });
+        return out;
+      });
+    }
+
+    function executeSelect(statement) {
+      const normalized = statement.replace(/\s+/g, " ").trim();
+
+      const main = normalized.match(/^SELECT\s+(.+?)\s+FROM\s+(\w+)(?:\s+(\w+))?(.*)$/i);
+      if (!main) {
+        throw new Error("SELECT no soportado por este laboratorio");
+      }
+
+      const selectClause = main[1];
+      const baseTable = main[2];
+      const baseAlias = main[3] || baseTable;
+      let tail = main[4] || "";
+      let rows = fromTable(baseTable, baseAlias);
+
+      const joinRegex = /^\s+JOIN\s+(\w+)\s+(\w+)\s+ON\s+([\w.]+)\s*=\s*([\w.]+)([\s\S]*)$/i;
+      while (joinRegex.test(tail)) {
+        const joinMatch = tail.match(joinRegex);
+        const joinTable = joinMatch[1];
+        const joinAlias = joinMatch[2];
+        const leftRef = joinMatch[3];
+        const rightRef = joinMatch[4];
+        const rightRows = fromTable(joinTable, joinAlias);
+        const joined = [];
+
+        rows.forEach((leftRow) => {
+          rightRows.forEach((rightRow) => {
+            const combo = { ...leftRow, ...rightRow };
+            if (getCell(combo, leftRef) === getCell(combo, rightRef)) {
+              joined.push(combo);
+            }
+          });
+        });
+
+        rows = joined;
+        tail = joinMatch[5] || "";
+      }
+
+      const whereMatch = tail.match(/\sWHERE\s+(.+?)(?=\sORDER BY|\sGROUP BY|\sLIMIT|$)/i);
+      if (whereMatch) {
+        rows = rows.filter((row) => evaluateCondition(row, whereMatch[1]));
+      }
+
+      const groupMatch = tail.match(/\sGROUP BY\s+([\w.]+)(?=\sORDER BY|\sLIMIT|$)/i);
+      const orderMatch = tail.match(/\sORDER BY\s+([\w.]+)(?:\s+(ASC|DESC))?(?=\sLIMIT|$)/i);
+      const limitMatch = tail.match(/\sLIMIT\s+(\d+)$/i);
+
+      const selectParts = splitCsv(selectClause);
+
+      if (groupMatch) {
+        const groupKey = groupMatch[1];
+        const groups = new Map();
+
+        rows.forEach((row) => {
+          const value = getCell(row, groupKey);
+          const key = String(value);
+          if (!groups.has(key)) {
+            groups.set(key, []);
+          }
+          groups.get(key).push(row);
+        });
+
+        rows = Array.from(groups.values()).map((groupRows) => {
+          const first = groupRows[0];
+          const result = {};
+          selectParts.forEach((part) => {
+            const countMatch = part.match(/^COUNT\(\*\)(?:\s+AS\s+(\w+))?$/i);
+            if (countMatch) {
+              result[countMatch[1] || "COUNT(*)"] = groupRows.length;
+            } else {
+              const aliasMatch = part.match(/^(.+?)\s+AS\s+(\w+)$/i);
+              const raw = aliasMatch ? aliasMatch[1].trim() : part.trim();
+              const outName = aliasMatch ? aliasMatch[2] : (raw.includes(".") ? raw.split(".")[1] : raw);
+              result[outName] = getCell(first, raw);
+            }
+          });
+          return result;
+        });
+      } else if (selectParts.length === 1 && /^COUNT\(\*\)(?:\s+AS\s+(\w+))?$/i.test(selectParts[0])) {
+        const countName = selectParts[0].match(/^COUNT\(\*\)(?:\s+AS\s+(\w+))?$/i)[1] || "COUNT(*)";
+        rows = [{ [countName]: rows.length }];
+      } else if (selectClause.trim() === "*") {
+        rows = rows.map((row) => {
+          const out = {};
+          Object.keys(row).forEach((key) => {
+            if (!key.includes(".")) {
+              out[key] = row[key];
+            }
+          });
+          return out;
+        });
+      } else {
+        rows = rows.map((row) => projectRow(row, selectParts));
+      }
+
+      if (orderMatch) {
+        const orderKey = orderMatch[1];
+        const direction = (orderMatch[2] || "ASC").toUpperCase();
+        rows.sort((a, b) => {
+          const left = getCell(a, orderKey);
+          const right = getCell(b, orderKey);
+          if (left === right) return 0;
+          if (left == null) return 1;
+          if (right == null) return -1;
+          if (left > right) return direction === "ASC" ? 1 : -1;
+          return direction === "ASC" ? -1 : 1;
+        });
+      }
+
+      if (limitMatch) {
+        rows = rows.slice(0, Number(limitMatch[1]));
+      }
+
+      return rows;
+    }
+
+    function executeDrop(statement) {
+      const match = statement.match(/^DROP TABLE IF EXISTS (\w+)$/i);
+      if (!match) {
+        throw new Error("DROP TABLE no soportado");
+      }
+      delete db[match[1]];
+      return "Tabla eliminada si existia: " + match[1];
+    }
+
+    function executeCreate(statement) {
+      const match = statement.match(/^CREATE TABLE(?: IF NOT EXISTS)? (\w+)\s*\(([\s\S]+)\)$/i);
+      if (!match) {
+        throw new Error("CREATE TABLE no soportado");
+      }
+      const tableName = match[1];
+      const columnDefs = splitCsv(match[2]);
+      const columns = columnDefs
+        .map((line) => line.trim())
+        .filter((line) => line && !/^FOREIGN KEY/i.test(line))
+        .map((line) => line.split(/\s+/)[0]);
+
+      db[tableName] = {
+        columns,
+        rows: []
+      };
+      return "Tabla creada: " + tableName;
+    }
+
+    function executeInsert(statement) {
+      const match = statement.match(/^INSERT INTO (\w+)\s*\(([^)]+)\)\s*VALUES\s*([\s\S]+)$/i);
+      if (!match) {
+        throw new Error("INSERT no soportado");
+      }
+      const tableName = match[1];
+      const columns = splitCsv(match[2]).map((item) => item.trim());
+      if (!db[tableName]) {
+        throw new Error("no such table: " + tableName);
+      }
+
+      const tuples = [];
+      let current = "";
+      let depth = 0;
+      let inQuotes = false;
+      const valuesSource = match[3].trim();
+
+      for (let i = 0; i < valuesSource.length; i += 1) {
+        const char = valuesSource[i];
+        if (char === "'" && valuesSource[i - 1] !== "\\") {
+          inQuotes = !inQuotes;
+        }
+        if (char === "(" && !inQuotes) {
+          depth += 1;
+        }
+        if (depth > 0) {
+          current += char;
+        }
+        if (char === ")" && !inQuotes) {
+          depth -= 1;
+          if (depth === 0) {
+            tuples.push(current);
+            current = "";
+          }
+        }
+      }
+
+      tuples.forEach((tuple) => {
+        const values = splitCsv(tuple.slice(1, -1)).map(parseValue);
+        const row = {};
+        columns.forEach((col, index) => {
+          row[col] = values[index];
+        });
+        db[tableName].rows.push(row);
+      });
+
+      return tuples.length + " fila(s) insertadas en " + tableName;
+    }
+
+    function executeStatement(statement, index) {
+      const trimmed = statement.trim();
+      if (!trimmed) {
+        return;
+      }
+
+      if (/^SELECT\s/i.test(trimmed)) {
+        const rows = executeSelect(trimmed);
+        renderTable("Resultado " + index, rows);
+        return "SELECT ejecutado: " + rows.length + " fila(s)";
+      }
+
+      if (/^DROP TABLE/i.test(trimmed)) {
+        return executeDrop(trimmed);
+      }
+
+      if (/^CREATE TABLE/i.test(trimmed)) {
+        return executeCreate(trimmed);
+      }
+
+      if (/^INSERT INTO/i.test(trimmed)) {
+        return executeInsert(trimmed);
+      }
+
+      throw new Error("Sentencia no soportada en este laboratorio: " + trimmed.split(/\s+/).slice(0, 3).join(" "));
+    }
+
+    function runStatements(sql) {
+      const statements = splitStatements(sql);
+      const log = [];
+      clearResults();
+
+      statements.forEach((statement, index) => {
+        const message = executeStatement(statement, index + 1);
+        if (message) {
+          log.push(message);
+        }
+      });
+
+      if (!log.length) {
+        log.push("No se han ejecutado sentencias.");
+      }
+      setConsole(log);
+      setStatus("Ejecutado correctamente");
+    }
+
+    presetButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        presetButtons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        sqlEditor.value = PRESET_QUERIES[button.dataset.sqlPreset];
+      });
+    });
+
+    runSql.addEventListener("click", () => {
+      try {
+        runStatements(sqlEditor.value);
+      } catch (error) {
+        clearResults();
+        setConsole(["Error: " + error.message]);
+        setStatus("Hay un error en la consulta");
+      }
+    });
+
+    resetDb.addEventListener("click", () => {
+      db = cloneDb(BASE_DB);
+      clearResults();
+      setConsole(["Dataset restaurado al estado base."]);
+      setStatus("Dataset reiniciado");
+    });
+
+    loadMiniProject.addEventListener("click", () => {
+      sqlEditor.value = MINI_PROJECT_SQL;
+      setStatus("Mini proyecto cargado en el editor");
+    });
+
+    sqlEditor.value = PRESET_QUERIES.select;
+
+    // --- MEJORAS UX ---
+    // 1. Ejecutar al pulsar Ctrl+Enter / Cmd+Enter
+    sqlEditor.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runSql.click();
+      }
+    });
+
+    // 2. Botón flotante "Copiar query" que aparecerá al hacer hover
+    const btnFloatCopy = document.createElement('button');
+    btnFloatCopy.innerText = 'Copiar';
+    // Estilos inline del botón para que no dependa del CSS y encaje perfecto
+    btnFloatCopy.style.cssText = 'position: absolute; top: 12px; right: 28px; opacity: 0; background: rgba(56,189,248,0.2); color: var(--accent); border: 1px solid var(--accent); font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: opacity 0.2s; font-family: var(--font-sans); display: flex; align-items: center; justify-content: center; height: 28px; pointer-events: auto;';
+    
+    // El padre inmediato debe tener position relative para que el absolute del topbar funcione
+    sqlEditor.parentElement.style.position = 'relative'; 
+    sqlEditor.parentElement.appendChild(btnFloatCopy);
+    
+    // Comportamiento de "Hover"
+    sqlEditor.addEventListener('mouseenter', () => btnFloatCopy.style.opacity = '1');
+    sqlEditor.parentElement.addEventListener('mouseleave', () => btnFloatCopy.style.opacity = '0');
+    
+    // Comportamiento de "Click"
+    btnFloatCopy.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigator.clipboard.writeText(sqlEditor.value);
+        btnFloatCopy.innerText = '¡Copiado!';
+        btnFloatCopy.style.background = 'rgba(16, 185, 129, 0.2)';
+        btnFloatCopy.style.color = 'var(--ok)';
+        btnFloatCopy.style.borderColor = 'var(--ok)';
+        setTimeout(() => {
+            btnFloatCopy.innerText = 'Copiar';
+            btnFloatCopy.style.background = 'rgba(56,189,248,0.2)';
+            btnFloatCopy.style.color = 'var(--accent)';
+            btnFloatCopy.style.borderColor = 'var(--accent)';
+        }, 1500);
+    });
+
+    const answers = {
+      q1: "a",
+      q2: "b",
+      q3: "b",
+      q4: "a",
+      q5: "a",
+      q6: "b"
+    };
+
+    const explanations = {
+      q1: "SELECT sirve para leer datos; no cambia la tabla.",
+      q2: "El texto debe ir entre comillas simples.",
+      q3: "NULL no se compara con =, se consulta con IS NULL.",
+      q4: "ORDER BY es la cláusula de ordenación.",
+      q5: "LIMIT recorta el número de filas de salida.",
+      q6: "JOIN une tablas relacionadas para mostrar información completa."
+    };
+
+    const quizForm = document.getElementById("quizForm");
+    const gradeQuiz = document.getElementById("gradeQuiz");
+    const resetQuiz = document.getElementById("resetQuiz");
+    const quizResult = document.getElementById("quizResult");
+    const scoreText = document.getElementById("scoreText");
+    const scoreMessage = document.getElementById("scoreMessage");
+    const scoreDetails = document.getElementById("scoreDetails");
+
+    gradeQuiz.addEventListener("click", () => {
+      let score = 0;
+      scoreDetails.innerHTML = "";
+
+      Object.keys(answers).forEach((key, index) => {
+        const choice = quizForm.querySelector("input[name='" + key + "']:checked");
+        const li = document.createElement("li");
+        if (choice && choice.value === answers[key]) {
+          score += 1;
+          li.innerHTML = "<strong class='status-good'>Pregunta " + (index + 1) + ": correcta.</strong> " + explanations[key];
+        } else {
+          li.innerHTML = "<strong class='status-bad'>Pregunta " + (index + 1) + ": revisa esto.</strong> " + explanations[key];
+        }
+        scoreDetails.appendChild(li);
+      });
+
+      scoreText.textContent = score + "/6";
+      if (score >= 5) {
+        scoreMessage.innerHTML = "<span class='status-good'><strong>Muy bien.</strong></span> Ya tienes control real del nivel 0.";
+      } else if (score >= 3) {
+        scoreMessage.innerHTML = "<span class='status-warn'><strong>Vas bien, pero falta fijar varias piezas.</strong></span>";
+      } else {
+        scoreMessage.innerHTML = "<span class='status-bad'><strong>Necesitas otra vuelta completa.</strong></span>";
+      }
+      quizResult.classList.add("show");
+    });
+
+    resetQuiz.addEventListener("click", () => {
+      quizForm.reset();
+      quizResult.classList.remove("show");
+      scoreText.textContent = "0/6";
+      scoreMessage.textContent = "";
+      scoreDetails.innerHTML = "";
+    });
+  </script>
+</body>
+</html>

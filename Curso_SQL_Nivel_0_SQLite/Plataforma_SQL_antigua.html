@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academia Interactiva SQL Nivel 0</title>
+
+  <!-- Tipografías de programación y UI -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Prism.js (Syntax Highlighting) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+  
+  <!-- sql.js (Motor SQLite en WebAssembly) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+  <!-- Controladores de diagramas -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    if (new URLSearchParams(window.location.search).has('embed')) {
+      document.documentElement.classList.add('sql-embed-mode');
+    }
+  </script>
+
+
+  <style>
+    :root {
+      --bg-dark: #030712; 
+      --bg-panel: #0f172a;
+      --bg-sidebar: #020617;
+      --border-color: rgba(148, 163, 184, 0.15);
+      --border-hover: rgba(56, 189, 248, 0.4);
+      --accent: #38bdf8;
+      --accent-2: #10b981;
+      --text-main: #94a3b8;
+      --text-light: #f8fafc;
+      --splitter: #334155;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sql-embed-mode body {
+      background-color: #020617;
+    }
+
+    .sql-embed-mode body::before {
+      display: none;
+    }
+
+    /* Grid Overlay de la academia (Data Grid) */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 80%);
+      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 80%);
+    }
+
+    /* Top Bar */
+    .topbar {
+      height: 50px;
+      min-height: 50px;
+      background-color: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+      color: var(--text-light);
+      z-index: 10;
+    }
+
+    .topbar .logo { 
+      margin-right: 12px; 
+      color: #fff; 
+      font-weight: 800; 
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .sql-embed-mode .topbar {
+      display: none;
+    }
+
+    /* Botones Globales */
+    .btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-light);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { background: rgba(255,255,255,0.1); border-color: var(--border-hover); }
+    .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+    .btn.primary:hover { background: #7dd3fc; }
+
+    /* Layout Principal */
+    .main-workspace {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 50px);
+      position: relative;
+    }
+
+    .sql-embed-mode .main-workspace {
+      height: 100vh;
+    }
+
+    .sql-embed-mode .sidebar {
+      border-right-color: rgba(148, 163, 184, 0.12);
+    }
+
+    /* Barra Lateral de Lecciones */
+    .sidebar {
+      width: 250px;
+      min-width: 200px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 5;
+    }
+
+    .sidebar-title {
+      padding: 16px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 700;
+    }
+
+    .lesson-list {
+      flex: 1;
+      overflow-y: auto;
+      list-style: none;
+    }
+
+    .lesson-item {
+      padding: 12px 18px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      transition: all 0.2s ease;
+      font-weight: 500;
+      color: #cbd5e1;
+    }
+
+    .lesson-item:hover {
+      background-color: rgba(255,255,255,0.03);
+      color: #fff;
+    }
+
+    .lesson-item.active {
+      background-color: rgba(56, 189, 248, 0.08);
+      border-left: 3px solid var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Contenedores Divisibles (Splitters) */
+    .v-split-container {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .upper-panel {
+      display: flex;
+      flex-direction: column;
+      flex: 1.2; /* Peso defecto superior */
+      min-height: 100px;
+      background-color: var(--bg-panel);
+      overflow: hidden;
+    }
+
+    .lower-panels {
+      display: flex;
+      flex-direction: row;
+      flex: 1.8; /* Peso defecto inferior */
+      min-height: 150px;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #editor-panel { flex: 1; min-width: 200px; background-color: #000; }
+    #results-panel { flex: 1; min-width: 200px; background-color: var(--bg-dark); }
+
+    /* Cabeceras de panel */
+    .panel-header {
+      padding: 8px 16px;
+      background-color: rgba(15, 23, 42, 0.9);
+      font-size: 0.85rem;
+      color: var(--text-light);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Resizers */
+    .resizer-h {
+      height: 6px;
+      background-color: var(--bg-sidebar);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      cursor: row-resize;
+      transition: background 0.2s;
+      z-index: 5;
+    }
+    .resizer-h:hover, .resizer-h:active { background-color: var(--accent); }
+
+    .resizer-v {
+      width: 6px;
+      background-color: var(--bg-sidebar);
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      cursor: col-resize;
+      transition: background 0.2s;
+      z-index: 5;
+    }
+    .resizer-v:hover, .resizer-v:active { background-color: var(--accent); }
+
+
+    /* Visor de Teoría (Prism.js container) */
+    #theory-viewer {
+      background-color: var(--bg-panel);
+      padding: 0;
+    }
+    #theory-code {
+      margin: 0;
+      border-radius: 0;
+      background: transparent;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      white-space: pre-wrap; /* Para que el texto largo no haga scroll infinito horizontal */
+    }
+
+    /* Textarea del editor SQL */
+    #sql-editor {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1.5;
+      padding: 16px;
+      border: none;
+      resize: none;
+      outline: none;
+      box-shadow: inset 0 2px 15px rgba(0,0,0,0.5);
+    }
+    #sql-editor:focus { box-shadow: inset 0 2px 15px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(56, 189, 248, 0.3); }
+
+    /* Auto-save indicator */
+    #save-indicator {
+      font-size: 0.75rem;
+      color: var(--text-main);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-weight: normal;
+      font-family: var(--font-sans);
+    }
+    #save-indicator.show { opacity: 1; }
+
+    /* Resultados Visuales (Tablas) */
+    #sql-results {
+      padding: 16px;
+    }
+
+    .table-visual { 
+      margin-bottom: 24px; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      border: 1px solid var(--border-color); 
+      background: rgba(15, 23, 42, 0.8); 
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .table-visual:nth-child(1) { border-top: 3px solid var(--accent); }
+    .table-visual:nth-child(2) { border-top: 3px solid var(--accent-2); }
+    .table-visual:nth-child(3) { border-top: 3px solid #8b5cf6; }
+
+    .table-title { 
+      background: rgba(0,0,0,0.3); 
+      padding: 12px 16px; 
+      font-weight: 700; 
+      border-bottom: 1px solid var(--border-color); 
+      color: var(--text-light); 
+      font-size: 0.9rem; 
+      font-family: var(--font-mono); 
+    }
+    .table-visual table { width: 100%; border-collapse: collapse; font-size: 0.9rem; font-family: var(--font-mono); }
+    .table-visual th, .table-visual td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.03); text-align: left; color: var(--text-light); }
+    .table-visual th { background: rgba(255,255,255,0.05); font-weight: 700; color: #fff;}
+    .table-visual tbody tr:nth-child(even) { background: rgba(255,255,255,0.01); }
+    .table-visual tbody tr:hover { background: rgba(56, 189, 248, 0.1); }
+    .null-val { color: rgba(255,255,255,0.3); font-style: italic; }
+
+    /* Mensajes de Status / Error */
+    #db-status { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); }
+    .success-msg { color: var(--accent-2); padding: 16px; background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--accent-2); font-family: var(--font-mono); font-size: 0.9rem; border-radius: 4px; }
+    .error-msg { color: #f87171; padding: 16px; background: rgba(248, 113, 113, 0.1); border-left: 4px solid #ef4444; font-family: var(--font-mono); font-size: 0.9rem; display: none; margin: 16px; white-space: pre-wrap; border-radius: 4px; }
+
+    /* Utils */
+    .btn-toggle-sol { background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #c4b5fd; }
+    .btn-toggle-sol:hover { background: rgba(139, 92, 246, 0.4); }
+    .btn-toggle-sol.active { background: #8b5cf6; color: #fff; border-color: #8b5cf6;}
+    
+    /* Modal del Esquema Visual */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+      display: none; justify-content: center; align-items: center; z-index: 100;
+    }
+    .modal-content {
+      background: var(--bg-panel); border: 1px solid var(--accent);
+      border-radius: 12px; padding: 24px; width: 90%; max-width: 800px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1);
+      position: relative;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 20px;
+      background: transparent; border: none; color: var(--text-main);
+      font-size: 1.5rem; cursor: pointer; transition: color 0.2s;
+    }
+    .modal-close:hover { color: #fff; }
+    .modal-title { font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 20px; font-family: var(--font-sans); }
+    .schema-diagram { background: #cbd5e1; border-radius: 8px; padding: 20px; overflow-x: auto;}
+    
+    /* Mermaid ER Diagram overrides */
+    .er.entityBox { fill: #f8fafc; stroke: #334155; stroke-width: 2px; }
+    .er.entityLabel { fill: #0f172a; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    .er.attributeBoxOdd { fill: #f1f5f9; stroke: #cbd5e1; }
+    .er.attributeBoxEven { fill: #e2e8f0; stroke: #cbd5e1; }
+    .er.relationshipLine { stroke: #38bdf8; stroke-width: 2px; }
+
+    @media (max-width: 1024px) {
+      .topbar {
+        height: auto;
+        min-height: 50px;
+        padding: 10px 14px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .topbar-actions {
+        flex-wrap: wrap;
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .sidebar {
+        width: 220px;
+        min-width: 220px;
+      }
+
+      .lesson-item {
+        padding: 11px 14px;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 820px) {
+      body {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+      }
+
+      .topbar > span {
+        font-size: 0.88rem;
+        line-height: 1.35;
+      }
+
+      .topbar-actions .btn {
+        flex: 1 1 calc(50% - 6px);
+        justify-content: center;
+      }
+
+      .main-workspace {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 92px);
+      }
+
+      .sql-embed-mode .main-workspace {
+        min-height: 100dvh;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .sidebar-title {
+        padding: 12px 16px 8px;
+      }
+
+      .lesson-list {
+        display: flex;
+        gap: 10px;
+        padding: 0 12px 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .lesson-item {
+        flex: 0 0 auto;
+        min-width: max-content;
+        padding: 10px 14px;
+        border-left: 0;
+        border-bottom: 0;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 999px;
+        scroll-snap-align: start;
+      }
+
+      .lesson-item.active {
+        border-left: 0;
+        border-color: rgba(56, 189, 248, 0.46);
+      }
+
+      .upper-panel {
+        flex: none;
+        height: auto !important;
+        min-height: 0;
+      }
+
+      .sql-embed-mode .upper-panel {
+        height: 8.5rem !important;
+      }
+
+      .sql-embed-mode .sidebar {
+        background: linear-gradient(180deg, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      }
+
+      .lower-panels {
+        flex: none;
+        min-height: 0;
+        flex-direction: column;
+      }
+
+      #editor-panel,
+      #results-panel {
+        width: 100% !important;
+        min-width: 0;
+        flex: none;
+      }
+
+      .resizer-h,
+      .resizer-v {
+        display: none;
+      }
+
+      .panel-header {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 12px;
+      }
+
+      .panel-header > div {
+        width: 100%;
+      }
+
+      .panel-header .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      #theory-viewer {
+        max-height: 15rem;
+      }
+
+      #theory-code {
+        padding: 14px;
+        font-size: 0.82rem;
+      }
+
+      #sql-editor {
+        min-height: 18rem;
+        height: 18rem;
+        padding: 14px;
+        font-size: 0.92rem;
+      }
+
+      .sql-embed-mode #sql-editor {
+        min-height: 20rem;
+        height: 20rem;
+      }
+
+      #results-panel .panel-content {
+        min-height: 16rem;
+      }
+
+      .sql-embed-mode #results-panel .panel-content {
+        min-height: 11rem;
+      }
+
+      .table-visual {
+        overflow-x: auto;
+      }
+
+      #sql-results {
+        padding: 12px;
+      }
+
+      .table-visual table {
+        font-size: 0.8rem;
+      }
+
+      .table-visual th,
+      .table-visual td {
+        padding: 8px 10px;
+      }
+
+      .modal-content {
+        width: 94%;
+        padding: 18px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar .logo {
+        margin-right: 0;
+      }
+
+      .topbar-actions {
+        gap: 8px;
+      }
+
+      .topbar-actions .btn {
+        flex: 1 1 100%;
+        font-size: 0.8rem;
+        padding: 8px 10px;
+      }
+
+      #btn-descargar-db {
+        display: none;
+      }
+
+      #btn-esquema {
+        display: none;
+      }
+
+      .sidebar-title {
+        display: none;
+      }
+
+      .lesson-list {
+        padding-top: 12px;
+      }
+
+      .lesson-item {
+        font-size: 0.8rem;
+        padding: 9px 12px;
+      }
+
+      #theory-viewer {
+        max-height: 13rem;
+      }
+
+      #sql-editor {
+        min-height: 15rem;
+        height: 15rem;
+        font-size: 0.88rem;
+      }
+
+      .sql-embed-mode .upper-panel {
+        height: 7rem !important;
+      }
+
+      .sql-embed-mode #theory-viewer {
+        max-height: 7rem;
+      }
+
+      .sql-embed-mode #sql-editor {
+        min-height: 18rem;
+        height: 18rem;
+      }
+
+      .sql-embed-mode #results-panel .panel-content {
+        min-height: 10rem;
+      }
+
+      #results-panel .panel-content {
+        min-height: 13rem;
+      }
+
+      .table-title {
+        font-size: 0.78rem;
+        padding: 10px 12px;
+      }
+
+      .table-visual {
+        margin-bottom: 16px;
+      }
+
+      .table-visual th,
+      .table-visual td {
+        padding: 8px;
+      }
+
+      .modal-title {
+        font-size: 1rem;
+      }
+
+      .schema-diagram {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA SUPERIOR -->
+  <header class="topbar">
+    <div class="logo">SQL.js</div>
+    <span>Joaquín - Plataforma Integral de Consultas (Nivel 0)</span>
+    
+    <div class="topbar-actions">
+      <button class="btn" id="btn-esquema">�️ Ver Esquema Visual</button>
+      <button class="btn" id="btn-descargar-db">⬇️ Descargar DB (.sqlite)</button>
+      <button class="btn" id="btn-reset-db">🔄 Restaurar Base de Datos</button>
+    </div>
+  </header>
+
+  <div class="main-workspace">
+    
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar">
+      <div class="sidebar-title">Ruta del Curso</div>
+      <ul class="lesson-list" id="lesson-list">
+        <!-- Rellenado por JS -->
+      </ul>
+    </aside>
+
+    <!-- ZONA CENTRAL DE TRABAJO -->
+    <div class="v-split-container">
+      
+      <!-- PANELES SUPERIORES (Enunciado y Teoría) -->
+      <div class="upper-panel" id="upper-panel">
+        <div class="panel-header">
+          <div>
+            <span>📖 Lección y Notas: </span>
+            <span id="current-file-name" style="color:var(--accent); font-family: var(--font-mono);">Cargando...</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+             <button class="btn" id="btn-pasar-codigo">⬇️ Copiar al Laboratorio</button>
+             <button class="btn btn-toggle-sol" id="btn-ver-solucion" style="display:none">👁️ Ver Solución</button>
+          </div>
+        </div>
+        <div class="panel-content" id="theory-viewer">
+          <pre style="margin:0;"><code class="language-sql" id="theory-code">// Selecciona una práctica en la izquierda...</code></pre>
+        </div>
+      </div>
+
+      <!-- Resizer Horizontal -->
+      <div class="resizer-h" id="resizer-h"></div>
+
+      <!-- PANELES INFERIORES (H-Split: Editor | Resultados) -->
+      <div class="lower-panels" id="lower-panels">
+        
+        <!-- EDITOR SQL -->
+        <div class="panel" id="editor-panel">
+          <div class="panel-header" style="background-color: #020617;">
+            <div style="display:flex; align-items:center; gap: 12px;">
+              <span>💻 Laboratorio SQL (Escribe aquí)</span>
+              <span id="save-indicator">💾 Guardado</span>
+            </div>
+            <button class="btn primary" id="btn-run-sql">▶ Ejecutar (Ctrl+Enter)</button>
+          </div>
+          <textarea id="sql-editor" spellcheck="false" placeholder="EJEMPLO:&#10;SELECT * FROM socios;&#10;-- Pulsa Ctrl+Enter o el boton Ejecutar..."></textarea>
+        </div>
+
+        <!-- Resizer Vertical -->
+        <div class="resizer-v" id="resizer-v"></div>
+
+        <!-- CONSOLA/RESULTADOS -->
+        <div class="panel" id="results-panel">
+          <div class="panel-header">
+            <span>📊 Analizador y Resultados</span>
+            <span id="db-status">🟡 Inicializando SQL.js...</span>
+          </div>
+          <div class="panel-content">
+            <div id="sql-error" class="error-msg"></div>
+            <div id="sql-results">
+               <div style="padding: 24px; color: rgba(255,255,255,0.2); font-style: italic; text-align: center; font-family: var(--font-mono);">
+                  Escribe una consulta en el panel izquierdo y ejecútala. Las tablas y resultados aparecerán en esta zona de forma gráfica.
+               </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL ESQUEMA VISUAL -->
+  <div class="modal-overlay" id="schema-modal">
+    <div class="modal-content">
+      <button class="modal-close" id="btn-cerrar-modal">&times;</button>
+      <div class="modal-title">Diagrama Entidad-Relación (Base actual)</div>
+      <div style="margin-bottom: 16px; color: var(--text-main); font-size: 0.9rem;">
+        Aquí puedes ver de un vistazo qué tablas existen ahora mismo en memoria y cómo se relacionan los <code>ids</code> entre ellas, clave para los <code>JOIN</code>.
+      </div>
+      <div class="schema-diagram" id="mermaid-container">
+        <!-- El diagrama se genera dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. DEFINICIÓN DEL TEMARIO Y ARCHIVOS FÍSICOS
+       ========================================================================= */
+    const lessons = [
+      { title: "Paso 00: Preparar Base", file: "00_reset_biblioteca_nivel0.sql", sol: null },
+      { title: "Práctica 01: SELECT", file: "01_practica_select.sql", sol: "01_practica_select_resuelta.sql" },
+      { title: "Práctica 02: WHERE", file: "02_practica_where.sql", sol: "02_practica_where_resuelta.sql" },
+      { title: "Práctica 03: ORDER / LIMIT", file: "03_practica_order_limit.sql", sol: "03_practica_order_limit_resuelta.sql" },
+      { title: "Práctica 04: CREATE / INSERT", file: "04_practica_create_insert.sql", sol: "04_practica_create_insert_resuelta.sql" },
+      { title: "Práctica 05: JOIN", file: "05_practica_join.sql", sol: "05_practica_join_resuelta.sql" },
+      { title: "Práctica 06: GROUP BY", file: "06_practica_group_by.sql", sol: "06_practica_group_by_resuelta.sql" },
+      { title: "Proyecto: Prueba Final", file: "99_miniproyecto_final.sql", sol: "99_miniproyecto_final_resuelto.sql" }
+    ];
+
+    let currentLessonIndex = 0;
+    let showingSolution = false;
+    let currentScriptCode = "";
+
+    // Poblar el menú lateral
+    const listElement = document.getElementById('lesson-list');
+    lessons.forEach((lesson, index) => {
+      const li = document.createElement('li');
+      li.className = 'lesson-item';
+      li.textContent = lesson.title;
+      li.onclick = () => loadLesson(index);
+      listElement.appendChild(li);
+    });
+
+    /* =========================================================================
+       2. CARGA DE ARCHIVOS LOCALES (Markdown indirecto)
+       ========================================================================= */
+    async function loadLesson(index) {
+      currentLessonIndex = index;
+      showingSolution = false;
+      
+      document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active'));
+      listElement.children[index].classList.add('active');
+      if (window.matchMedia('(max-width: 820px)').matches) {
+        listElement.children[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+      
+      const lesson = lessons[index];
+      const btnSol = document.getElementById("btn-ver-solucion");
+      
+      if(lesson.sol) {
+         btnSol.style.display = 'inline-flex';
+         btnSol.textContent = '👁️ Ver Solución';
+         btnSol.className = 'btn btn-toggle-sol';
+      } else {
+         btnSol.style.display = 'none';
+      }
+      
+      // Restaurar el código del borrador local si existe, si no, limpiar el editor
+      const editor = document.getElementById("sql-editor");
+      const savedCode = localStorage.getItem('sqlPlatform_draft_' + index);
+      if (savedCode) {
+          editor.value = savedCode;
+      } else {
+          editor.value = "";
+          // O poner el placeholder base aquí si quieres
+      }
+      
+      await fetchAndRender('scripts/' + lesson.file);
+    }
+
+    async function fetchAndRender(path) {
+      const codeViewer = document.getElementById("theory-code");
+      codeViewer.textContent = "-- Cargando archivo " + path + " vía Fetch API...";
+      document.getElementById("current-file-name").textContent = path;
+      Prism.highlightElement(codeViewer); // Repintar
+      
+      try {
+          // El HTML debe lanzarse mediante "Live Server" para que esto funcione
+          const response = await fetch('./' + path);
+          if (!response.ok) throw new Error("HTTP " + response.status);
+          const text = await response.text();
+          currentScriptCode = text;
+          codeViewer.textContent = text;
+      } catch (e) {
+          codeViewer.textContent = `-- ❌ Error al cargar "${path}".\n-- Recuerda abrir este HTML usando "Open with Live Server" en VSCode.\n-- Detalles: ${e.message}`;
+      }
+      Prism.highlightElement(codeViewer);
+      document.getElementById("theory-viewer").scrollTop = 0;
+    }
+
+    // Botones del panel superior
+    document.getElementById('btn-ver-solucion').onclick = async function() {
+      const lesson = lessons[currentLessonIndex];
+      if(!showingSolution) {
+          showingSolution = true;
+          this.textContent = '🔙 Volver al Enunciado';
+          this.className = 'btn btn-toggle-sol active';
+          await fetchAndRender('soluciones/' + lesson.sol);
+      } else {
+          showingSolution = false;
+          this.textContent = '👁️ Ver Solución';
+          this.className = 'btn btn-toggle-sol';
+          await fetchAndRender('scripts/' + lesson.file);
+      }
+    };
+
+    document.getElementById('btn-pasar-codigo').onclick = function() {
+      const editor = document.getElementById("sql-editor");
+      editor.value = currentScriptCode;
+      
+      const originalText = this.textContent;
+      this.textContent = "✅ ¡Enviado!";
+      setTimeout(() => this.textContent = originalText, 1500);
+    };
+
+    /* =========================================================================
+       3. INICIALIZACIÓN DE MOTOR SQL.JS (SQLite WEB)
+       ========================================================================= */
+    let db = null;
+
+    async function initDB() {
+      const statusEl = document.getElementById("db-status");
+      try {
+          // Cargar WASM de SQLite
+          const SQL = await initSqlJs({
+              locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+          });
+          db = new SQL.Database();
+          
+          await resetDB(); // Autocarga inicial de las tablas
+      } catch (e) {
+          statusEl.textContent = "🔴 Error fatal de SQL.js";
+          document.getElementById('sql-error').style.display = 'block';
+          document.getElementById('sql-error').textContent = "No se pudo cargar el motor SQLite en WebAssembly: " + e.message;
+      }
+    }
+
+    async function resetDB() {
+      const statusEl = document.getElementById("db-status");
+      statusEl.textContent = "🟡 Reseteando tablas base...";
+      try {
+          const response = await fetch('./scripts/00_reset_biblioteca_nivel0.sql');
+          if(!response.ok) throw new Error("No se pudo cargar 00_reset_biblioteca_nivel0.sql");
+          
+          const scriptSQL = await response.text();
+          db.exec(scriptSQL);
+          
+          statusEl.textContent = "🟢 Base lista (socios, libros, prestamos)";
+          statusEl.style.color = "var(--accent-2)";
+      } catch (e) {
+          statusEl.textContent = "🔴 Error al resetear. Usa Live Server.";
+          statusEl.style.color = "#f87171";
+      }
+    }
+
+    /* =========================================================================
+       4. LÓGICA DE EJECUCIÓN DEL LABORATORIO
+       ========================================================================= */
+    function ejecutarConsultas() {
+      if(!db) return;
+      
+      const editor = document.getElementById("sql-editor");
+      const sqlText = editor.value.trim();
+      
+      const errorEl = document.getElementById("sql-error");
+      const resultsEl = document.getElementById("sql-results");
+      
+      if(!sqlText) return;
+      
+      errorEl.style.display = 'none';
+      resultsEl.innerHTML = '';
+      
+      try {
+          // db.exec maneja automáticamente mùltiples sentencias separadas por punto y coma (;)
+          const results = db.exec(sqlText);
+          pintarTablasResultados(results);
+      } catch (e) {
+          errorEl.textContent = "❌ ERROR SQL:\n" + e.message;
+          errorEl.style.display = 'block';
+      }
+    }
+
+    function pintarTablasResultados(results) {
+      const container = document.getElementById("sql-results");
+      
+      // Si la consulta fue por ejemplo un INSERT o UPDATE no devuelve matriz
+      if (!results || results.length === 0) {
+          container.innerHTML = "<div class='success-msg'>✅ Sentencia(s) ejecutada(s) con éxito (La consulta no devolvió filas a leer).</div>";
+          return;
+      }
+      
+      let html = "";
+      results.forEach((res, index) => {
+          html += `<div class="table-visual">
+                      <div class="table-title">💡 Resultado Tabular ${index + 1} (${res.values.length} filas)</div>
+                      <table>
+                         <thead><tr>`;
+                         
+          // Cabeceras
+          res.columns.forEach(col => { html += `<th>${col}</th>`; });
+          html += `</tr></thead><tbody>`;
+          
+          // Filas y Datos
+          res.values.forEach(row => {
+              html += `<tr>`;
+              row.forEach(val => {
+                  if (val === null) html += `<td class="null-val">NULL</td>`;
+                  else html += `<td>${val}</td>`;
+              });
+              html += `</tr>`;
+          });
+          
+          html += `</tbody></table></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    // Eventos Botones
+    document.getElementById("btn-run-sql").onclick = ejecutarConsultas;
+    document.getElementById("btn-reset-db").onclick = () => { resetDB(); document.getElementById("sql-results").innerHTML='<div class="success-msg">🔄 Las tablas han vuelto a su origen limpio.</div>'; };
+    
+    // Descargar Base de Datos
+    document.getElementById("btn-descargar-db").onclick = function() {
+      if (!db) return;
+      // Exportar la base de datos a un array de bytes
+      const binaryArray = db.export();
+      // Crear un Blob y forzar la descarga
+      const blob = new Blob([binaryArray], {type: "application/octet-stream"});
+      const a = document.createElement("a");
+      a.href = window.URL.createObjectURL(blob);
+      a.download = "biblioteca_nivel0.sqlite";
+      // Simular clic
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      const prevText = this.textContent;
+      this.textContent = "✅ DB Descargada";
+      this.style.borderColor = "var(--accent-2)";
+      this.style.color = "var(--accent-2)";
+      setTimeout(() => {
+         this.textContent = prevText;
+         this.style.borderColor = "rgba(255,255,255,0.1)";
+         this.style.color = "var(--text-light)";
+      }, 3000);
+    };
+
+    // Ver Esquema Visual (Modal Entidad-Relación dinámico)
+    document.getElementById("btn-esquema").onclick = function() {
+      const modal = document.getElementById("schema-modal");
+      const container = document.getElementById("mermaid-container");
+      
+      try {
+          // Consultamos las tablas maestras
+          const resTablas = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+          
+          if(!resTablas.length || !resTablas[0].values.length) {
+              container.innerHTML = "<em>La base de datos está vacía, no hay esquemas que mostrar.</em>";
+          } else {
+              let diagramDefinition = "erDiagram\n";
+              const tablasNombres = resTablas[0].values.map(row => row[0]);
+              
+              // Relaciones Estrellas y Fijas
+              if (tablasNombres.includes('socios') && tablasNombres.includes('prestamos')) {
+                  diagramDefinition += "    socios ||--o{ prestamos : \"tiene\"\n";
+              }
+              if (tablasNombres.includes('libros') && tablasNombres.includes('prestamos')) {
+                  diagramDefinition += "    libros ||--o{ prestamos : \"se presta en\"\n";
+              }
+
+              // Extraemos columnas dinámicamente
+              tablasNombres.forEach(tabla => {
+                  diagramDefinition += `    ${tabla} {\n`;
+                  const resCols = db.exec(`PRAGMA table_info(${tabla});`);
+                  if (resCols.length) {
+                      resCols[0].values.forEach(colInfo => {
+                          let colType = colInfo[2] ? colInfo[2].split(' ')[0] : "TEXT"; 
+                          let colName = colInfo[1];
+                          let isPK = colInfo[5] === 1 ? "PK" : "";
+                          let isFK = (colName === "socio_id" || colName === "libro_id") && tabla === "prestamos" ? "FK" : "";
+                          let modifiers = [isPK, isFK].filter(Boolean).join(",");
+                          modifiers = modifiers ? `"${modifiers}"` : "";
+                          diagramDefinition += `        ${colType} ${colName} ${modifiers}\n`;
+                      });
+                  }
+                  diagramDefinition += `    }\n`;
+              });
+
+              // Destruir Instancia previa e inyectar nuevo Mermaid
+              container.innerHTML = `<div class="mermaid">${diagramDefinition}</div>`;
+              mermaid.init(undefined, container.querySelectorAll('.mermaid'));
+          }
+          
+      } catch (e) {
+          container.innerHTML = "<span style='color:red'>Error al generar el diagrama: " + e.message + "</span>";
+      }
+
+      modal.style.display = "flex";
+    };
+
+    // Cerrar Modal
+    document.getElementById("btn-cerrar-modal").onclick = () => document.getElementById("schema-modal").style.display = "none";
+    document.getElementById("schema-modal").onclick = (e) => { 
+        if(e.target === document.getElementById("schema-modal")) document.getElementById("schema-modal").style.display = "none"; 
+    };
+
+    // Inicializar MermaidJS
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+    // --- AUTOGUARDADO EN LOCALSTORAGE ---
+    let saveTimeout = null;
+    document.getElementById("sql-editor").addEventListener("input", function() {
+        const text = this.value;
+        const index = currentLessonIndex;
+        
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            localStorage.setItem('sqlPlatform_draft_' + index, text);
+            
+            // Animación visual de guardado
+            const indicador = document.getElementById("save-indicator");
+            indicador.classList.add("show");
+            setTimeout(() => indicador.classList.remove("show"), 2000);
+        }, 800); // Guarda 800ms después de que dejen de escribir
+    });
+
+    // Atajo Teclado: Ctl+Enter en el textarea para Ejecutar
+    document.getElementById("sql-editor").addEventListener("keydown", function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          ejecutarConsultas();
+      }
+    });
+
+    /* =========================================================================
+       5. SUBSISTEMA DE RESIZERS (Divisores de ventana arrastrables)
+       ========================================================================= */
+    const resizerH = document.getElementById('resizer-h');
+    const upperPanel = document.getElementById('upper-panel');
+    let isResizingH = false;
+
+    resizerH.addEventListener('mousedown', () => {
+      isResizingH = true;
+      document.body.style.cursor = 'row-resize';
+    });
+
+    const resizerV = document.getElementById('resizer-v');
+    const editorPanel = document.getElementById('editor-panel');
+    let isResizingV = false;
+
+    resizerV.addEventListener('mousedown', () => {
+      isResizingV = true;
+      document.body.style.cursor = 'col-resize';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isResizingH) {
+        let newHeight = e.clientY - upperPanel.getBoundingClientRect().top;
+        if(newHeight > 100 && newHeight < window.innerHeight - 150) {
+          upperPanel.style.height = newHeight + 'px';
+          upperPanel.style.flex = 'none';
+        }
+      }
+      if (isResizingV) {
+        let newWidth = e.clientX - editorPanel.getBoundingClientRect().left;
+        if(newWidth > 150 && newWidth < window.innerWidth - 200) {
+          editorPanel.style.width = newWidth + 'px';
+          editorPanel.style.flex = 'none';
+        }
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if(isResizingH || isResizingV) {
+        isResizingH = false;
+        isResizingV = false;
+        document.body.style.cursor = 'default';
+      }
+    });
+
+    // INICIO
+    initDB();
+    loadLesson(0); // Cargar Práctica 00 por defecto
+  </script>
+</body>
+</html>

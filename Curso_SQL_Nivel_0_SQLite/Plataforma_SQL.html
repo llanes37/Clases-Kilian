@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laboratorio SQL Nivel 0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #081018;
+      --panel: rgba(11, 20, 31, 0.92);
+      --panel-2: rgba(18, 29, 44, 0.94);
+      --sidebar: rgba(6, 13, 22, 0.96);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #e5edf5;
+      --muted: #93a7bd;
+      --accent: #f97316;
+      --accent-2: #22c55e;
+      --shadow: 0 22px 40px rgba(0, 0, 0, 0.35);
+      --font-ui: "Space Grotesk", sans-serif;
+      --font-code: "JetBrains Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(249, 115, 22, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 28%),
+        linear-gradient(180deg, #060b12 0%, #081018 100%);
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), transparent 82%);
+    }
+
+    ::-webkit-scrollbar { width: 9px; height: 9px; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.35); border-radius: 999px; }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      height: 100vh;
+      transition: grid-template-columns 0.22s ease;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      min-width: 0;
+      min-height: 0;
+      position: relative;
+      transition: width 0.22s ease;
+    }
+
+    .app-shell.sidebar-hidden {
+      grid-template-columns: 0 1fr;
+    }
+
+    .sidebar-toggle {
+      position: absolute;
+      top: 18px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .sidebar-toggle:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.22);
+    }
+
+    .brand {
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(249, 115, 22, 0.14);
+      color: #fdba74;
+      font-size: 0.76rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .brand h1 { font-size: 1.35rem; line-height: 1.1; margin: 16px 0 8px; }
+    .brand p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.45; }
+    .sidebar-section { padding: 16px 20px 10px; }
+
+    .sidebar-section h2 {
+      margin: 0 0 10px;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .lesson-list {
+      padding: 0 12px 16px;
+      margin: 0;
+      list-style: none;
+      overflow: auto;
+      flex: 1;
+      min-height: 0;
+      padding-bottom: 84px;
+      scrollbar-gutter: stable;
+    }
+
+    .lesson-item {
+      margin-bottom: 8px;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: 0.2s ease;
+      cursor: pointer;
+      padding: 12px 14px;
+    }
+
+    .lesson-item:hover {
+      border-color: rgba(56, 189, 248, 0.32);
+      background: rgba(255, 255, 255, 0.04);
+      transform: translateY(-1px);
+    }
+
+    .lesson-item.active {
+      border-color: rgba(249, 115, 22, 0.42);
+      background: linear-gradient(180deg, rgba(249, 115, 22, 0.14), rgba(249, 115, 22, 0.06));
+      box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.14);
+    }
+
+    .lesson-type {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.13);
+      color: #7dd3fc;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .lesson-item strong { display: block; font-size: 0.97rem; line-height: 1.3; }
+    .lesson-item span { display: block; margin-top: 4px; color: var(--muted); font-size: 0.83rem; line-height: 1.35; }
+
+    .app-shell.sidebar-hidden .sidebar {
+      width: 0;
+      min-width: 0;
+      border-right: 0;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      min-width: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .workspace.status-hidden {
+      grid-template-rows: auto 1fr;
+    }
+
+    .workspace.status-hidden .status-grid {
+      display: none;
+    }
+
+    .topbar {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8, 16, 24, 0.86);
+      backdrop-filter: blur(16px);
+    }
+
+    .topbar-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .title-block h2 { margin: 0; font-size: 1.35rem; }
+    .title-block p { margin: 6px 0 0; color: var(--muted); font-size: 0.92rem; }
+    .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .btn {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .btn:hover {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.07);
+      transform: translateY(-1px);
+    }
+
+    .btn.primary { background: linear-gradient(135deg, #f97316, #fb7185); border-color: transparent; color: white; }
+    .btn.secondary { background: rgba(56, 189, 248, 0.12); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.2); }
+    .btn.success { background: rgba(34, 197, 94, 0.12); color: #86efac; border-color: rgba(34, 197, 94, 0.2); }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding: 14px 24px 18px;
+      border-bottom: 1px solid var(--border);
+      min-height: 0;
+      position: relative;
+    }
+
+    .status-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .status-card[data-table] {
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .status-card[data-table]:hover {
+      transform: translateY(-1px);
+      border-color: rgba(56, 189, 248, 0.3);
+      background: rgba(20, 36, 54, 0.95);
+    }
+
+    .status-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .status-card strong { display: block; font-size: 1.2rem; line-height: 1.2; }
+    .status-card small { display: block; margin-top: 6px; color: var(--muted); font-size: 0.8rem; }
+    .status-card small.hint { color: #7dd3fc; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(380px, 1fr);
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+      height: 100%;
+    }
+
+    .main-grid.content-hidden { grid-template-columns: minmax(0, 1fr); }
+
+    .main-grid.content-hidden .content-column {
+      display: none;
+    }
+
+    .main-grid.lab-hidden { grid-template-columns: minmax(0, 1fr); }
+
+    .main-grid.lab-hidden .lab-column {
+      display: none;
+    }
+
+    .content-column,
+    .lab-column {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      gap: 14px;
+      padding: 16px 18px 18px;
+      overflow: hidden;
+    }
+
+    .content-column {
+      grid-template-rows: minmax(0, 1fr);
+      border-right: 1px solid var(--border);
+    }
+
+    .lab-column {
+      grid-template-rows: minmax(180px, var(--lab-editor-size, 300px)) 12px minmax(260px, 1fr);
+      align-items: stretch;
+    }
+
+    .panel-resizer {
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.18), rgba(249, 115, 22, 0.18));
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: row-resize;
+      position: relative;
+      transition: 0.18s ease;
+    }
+
+    .panel-resizer:hover,
+    .panel-resizer.dragging {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.32), rgba(249, 115, 22, 0.3));
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .panel-resizer::before {
+      content: "";
+      position: absolute;
+      inset: 50% auto auto 50%;
+      width: 88px;
+      height: 2px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.5);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 -5px 0 rgba(255,255,255,0.22), 0 5px 0 rgba(255,255,255,0.22);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .panel-header h3 { margin: 0; font-size: 0.95rem; }
+    .panel-subtitle { color: var(--muted); font-size: 0.82rem; }
+    .tab-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .tab {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .tab.active { color: white; background: rgba(249, 115, 22, 0.14); border-color: rgba(249, 115, 22, 0.24); }
+    .viewer { min-height: 0; overflow: auto; padding: 0; scrollbar-gutter: stable; }
+
+    .viewer-markdown {
+      padding: 20px 20px 26px;
+      color: #d9e4ef;
+      line-height: 1.65;
+      font-size: 0.95rem;
+    }
+
+    .viewer-markdown h1,
+    .viewer-markdown h2,
+    .viewer-markdown h3 { color: white; margin-top: 1.25em; }
+
+    .viewer-markdown code,
+    .viewer-markdown pre { font-family: var(--font-code); }
+
+    .viewer-markdown pre {
+      background: rgba(2, 6, 23, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 16px;
+      padding: 14px;
+      overflow: auto;
+    }
+
+    .viewer-markdown blockquote {
+      margin: 18px 0;
+      padding: 0 0 0 14px;
+      border-left: 4px solid rgba(249, 115, 22, 0.4);
+      color: #cbd5e1;
+    }
+
+    .viewer-code {
+      margin: 0;
+      padding: 18px;
+      min-height: 100%;
+      font-family: var(--font-code);
+      font-size: 0.89rem;
+      line-height: 1.58;
+      background: transparent;
+      white-space: pre-wrap;
+    }
+
+    .viewer-empty { padding: 24px; color: var(--muted); font-family: var(--font-code); font-size: 0.9rem; }
+
+    .lesson-meta {
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .meta-chip {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .meta-chip span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .meta-chip strong { display: block; font-size: 0.9rem; }
+    .editor-wrap {
+      position: relative;
+      min-height: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #050b14;
+      overflow: auto;
+      scrollbar-gutter: stable;
+    }
+    .editor-toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
+    .editor-note { color: var(--muted); font-size: 0.8rem; }
+
+    textarea {
+      width: 100%;
+      flex: 1;
+      height: 100%;
+      min-height: 0;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #e2e8f0;
+      padding: 18px;
+      font-family: var(--font-code);
+      font-size: 0.93rem;
+      line-height: 1.6;
+    }
+
+    .results-body,
+    .inspector-body {
+      padding: 16px;
+      overflow: auto;
+      min-height: 0;
+      scrollbar-gutter: stable;
+    }
+
+    .message {
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      border: 1px solid transparent;
+      margin-bottom: 14px;
+    }
+
+    .message.info { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.18); color: #bfdbfe; }
+    .message.success { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.18); color: #bbf7d0; }
+    .message.error { background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.22); color: #fecaca; white-space: pre-wrap; }
+
+    .result-card,
+    .table-browser {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: var(--panel-2);
+    }
+
+    .table-scroll {
+      overflow: auto;
+      max-width: 100%;
+    }
+
+    .result-card h4,
+    .table-browser h4 {
+      margin: 0;
+      padding: 12px 14px;
+      font-size: 0.86rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-code);
+    }
+
+    table { width: 100%; border-collapse: collapse; font-family: var(--font-code); font-size: 0.84rem; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(148, 163, 184, 0.12); vertical-align: top; }
+    th { color: white; background: rgba(255,255,255,0.04); }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+
+    .table-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+
+    .table-chip {
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .table-chip.active { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.22); color: #86efac; }
+    .schema-modal { position: fixed; inset: 0; background: rgba(3, 6, 12, 0.75); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 30; backdrop-filter: blur(10px); }
+    .schema-card { width: min(980px, 100%); background: #0c1522; border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow); }
+    .schema-card .panel-header { background: rgba(255,255,255,0.03); }
+    .schema-body { padding: 18px; max-height: min(72vh, 860px); overflow: auto; background: #dde8f4; }
+    .exam-frame { width: 100%; border: 0; min-height: 620px; background: #050b14; }
+    .help-body { padding: 22px; max-height: min(72vh, 860px); overflow: auto; }
+    .help-list { margin: 0; padding-left: 18px; color: #d5dfeb; line-height: 1.7; }
+    .help-list li + li { margin-top: 10px; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.14);
+      color: #86efac;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .muted { color: var(--muted); }
+
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .icon-btn {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.22);
+    }
+
+    .floating-toggle {
+      position: absolute;
+      z-index: 8;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(10, 18, 28, 0.94);
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+
+    .floating-toggle.show {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .floating-toggle.left {
+      left: 12px;
+      top: 18px;
+    }
+
+    .floating-toggle.middle-left {
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .floating-toggle.middle-right {
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .section-toggle {
+      position: absolute;
+      top: 12px;
+      right: 24px;
+      z-index: 2;
+    }
+
+    @media (max-width: 1280px) {
+      .status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .main-grid { grid-template-columns: 1fr; }
+      .content-column { border-right: 0; border-bottom: 1px solid var(--border); }
+    }
+
+    @media (max-width: 960px) {
+      body { overflow: auto; }
+      .app-shell { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
+      .app-shell.sidebar-hidden { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+      .lesson-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .lesson-item { margin-bottom: 0; }
+      .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lesson-meta { grid-template-columns: 1fr; }
+      .sidebar-toggle { position: static; margin-top: 14px; }
+      .floating-toggle { display: none !important; }
+    }
+
+    @media (max-width: 640px) {
+      .lesson-list, .status-grid { grid-template-columns: 1fr; }
+      .topbar, .content-column, .lab-column { padding-left: 14px; padding-right: 14px; }
+      .toolbar, .table-actions, .tab-row { width: 100%; }
+      .btn, .tab, .table-chip { width: 100%; justify-content: center; text-align: center; }
+      .panel-header { align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <button class="sidebar-toggle" id="btn-toggle-sidebar" title="Plegar menu">◀</button>
+      <div class="brand">
+        <div class="brand-kicker">Laboratorio definitivo</div>
+        <h1>SQL Nivel 0</h1>
+        <p>Teoria base, practica, solucion y biblioteca de datos en un solo entorno para este curso.</p>
+      </div>
+      <div class="sidebar-section">
+        <h2>Ruta del curso</h2>
+      </div>
+      <ul class="lesson-list" id="lesson-list"></ul>
+    </aside>
+
+    <main class="workspace" id="workspace">
+      <button class="floating-toggle left" id="btn-restore-sidebar" title="Abrir menu">▶</button>
+      <header class="topbar">
+        <div class="topbar-row">
+          <div class="title-block">
+            <h2 id="course-title">Preparando laboratorio...</h2>
+            <p id="course-description">Cargando materiales del curso y la base Biblioteca Nivel 0.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn" id="btn-toggle-status">Ocultar tablas</button>
+            <button class="btn" id="btn-toggle-content">Ocultar teoria</button>
+            <button class="btn" id="btn-toggle-lab">Ocultar laboratorio</button>
+            <button class="btn secondary" id="btn-load-snippet">Pasar bloque al editor</button>
+            <button class="btn" id="btn-open-help">Ayuda</button>
+            <button class="btn" id="btn-fullscreen">Pantalla completa</button>
+            <button class="btn" id="btn-open-schema">Ver esquema</button>
+            <button class="btn success" id="btn-reset-db">Reset BD</button>
+            <button class="btn primary" id="btn-download-db">Descargar DB</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="status-grid">
+        <button class="icon-btn section-toggle" id="btn-hide-status-panel" title="Ocultar tablas">▲</button>
+        <article class="status-card">
+          <span>Estado motor</span>
+          <strong id="db-status">Inicializando SQL.js...</strong>
+          <small id="db-status-detail">Sincronizando base de practica.</small>
+        </article>
+        <article class="status-card" data-table="socios">
+          <span>Socios</span>
+          <strong id="stat-socios">-</strong>
+          <small>Tabla `socios`</small>
+          <small class="hint">Click para abrirla</small>
+        </article>
+        <article class="status-card" data-table="libros">
+          <span>Libros</span>
+          <strong id="stat-libros">-</strong>
+          <small>Tabla `libros`</small>
+          <small class="hint">Click para abrirla</small>
+        </article>
+        <article class="status-card" data-table="prestamos">
+          <span>Prestamos</span>
+          <strong id="stat-prestamos">-</strong>
+          <small>Tabla `prestamos`</small>
+          <small class="hint">Click para abrirla</small>
+        </article>
+      </section>
+
+      <section class="main-grid" id="main-grid">
+        <button class="floating-toggle middle-left" id="btn-restore-content" title="Abrir teoria">▶</button>
+        <button class="floating-toggle middle-right" id="btn-restore-lab" title="Abrir laboratorio">◀</button>
+        <div class="content-column" id="content-column">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 id="lesson-title">Contenido</h3>
+                <div class="panel-subtitle" id="lesson-subtitle">Selecciona una unidad del curso.</div>
+              </div>
+              <div class="panel-actions">
+                <div class="tab-row" id="content-tabs"></div>
+                <button class="icon-btn" id="btn-hide-content-panel" title="Ocultar teoria">◀</button>
+              </div>
+            </div>
+            <div class="viewer" id="content-viewer">
+              <div class="viewer-empty">Cargando contenido del curso...</div>
+            </div>
+          </section>
+
+        </div>
+        <div class="lab-column" id="lab-column">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Laboratorio SQL</h3>
+                <div class="panel-subtitle" id="editor-status">Editor listo para Biblioteca Nivel 0.</div>
+              </div>
+              <div class="panel-actions">
+                <button class="icon-btn" id="btn-hide-lab-panel" title="Ocultar laboratorio">▶</button>
+                <div class="editor-toolbar">
+                <button class="btn secondary" id="btn-run-selection">Ejecutar seleccion</button>
+                <button class="btn primary" id="btn-run-sql">Ejecutar editor</button>
+                <button class="btn" id="btn-clear-editor">Limpiar</button>
+                </div>
+              </div>
+            </div>
+            <div class="editor-wrap">
+              <textarea id="sql-editor" spellcheck="false" placeholder="Ejemplo:
+SELECT * FROM libros;
+
+Puedes seleccionar una sola sentencia y pulsar Ejecutar seleccion."></textarea>
+            </div>
+          </section>
+
+          <div class="panel-resizer" id="lab-resizer" title="Arrastra para dar mas espacio al editor o a los resultados"></div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Resultados</h3>
+                <div class="panel-subtitle">Mensajes, tablas y errores de ejecucion.</div>
+              </div>
+            </div>
+            <div class="results-body" id="results-body">
+              <div class="message info">Ejecuta una consulta para ver resultados aqui. La plataforma trabaja sobre una base en memoria inicializada con el script del curso.</div>
+            </div>
+          </section>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="schema-modal" id="schema-modal">
+    <div class="schema-card">
+      <div class="panel-header">
+        <div>
+          <h3>Esquema visual Biblioteca Nivel 0</h3>
+          <div class="panel-subtitle">Relaciones generadas desde la base cargada en memoria.</div>
+        </div>
+        <button class="btn" id="btn-close-schema">Cerrar</button>
+      </div>
+      <div class="schema-body" id="schema-body">
+        <div id="mermaid-root"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="schema-modal" id="help-modal">
+    <div class="schema-card" style="width:min(760px,100%);">
+      <div class="panel-header">
+        <div>
+          <h3>Ayuda rapida del laboratorio</h3>
+          <div class="panel-subtitle">Resumen de uso sin ocupar espacio fijo en pantalla.</div>
+        </div>
+        <button class="btn" id="btn-close-help">Cerrar</button>
+      </div>
+      <div class="help-body">
+        <ol class="help-list">
+          <li>Selecciona una unidad del menu izquierdo. Puedes ocultar el menu y recuperarlo con el boton flotante.</li>
+          <li>Abre teoria, ejercicio o solucion. Si seleccionas un bloque del contenido y pulsas <strong>Pasar bloque al editor</strong>, solo se copia ese fragmento.</li>
+          <li>En el editor puedes ejecutar solo la seleccion actual con <code>Ctrl+Enter</code> o con <strong>Ejecutar seleccion</strong>.</li>
+          <li>Las tarjetas superiores de <code>socios</code>, <code>libros</code> y <code>prestamos</code> cargan una consulta util para inspeccionar esa tabla.</li>
+          <li>Si quieres más espacio, usa <strong>Ocultar tablas</strong>, <strong>Ocultar teoria</strong> u <strong>Ocultar laboratorio</strong>.</li>
+          <li><strong>Reset BD</strong> restaura la base Biblioteca Nivel 0 en memoria al estado original del curso.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_PREFIX = "sql_nivel0_platform_v1";
+    const COURSE_FILES = { reset: "scripts/00_reset_biblioteca_nivel0.sql" };
+
+    const lessons = [
+      { id: "intro", title: "Paso 00 - Preparar base", type: "Guia", summary: "Conexion, archivo .db y arranque de la biblioteca de practica.", description: "Prepara el entorno y deja la base lista antes de empezar.", doc: "README.md", script: "scripts/00_reset_biblioteca_nivel0.sql", sol: null, defaultTab: "doc" },
+      { id: "select", title: "Practica 01 - SELECT", type: "Practica", summary: "Primeras consultas para leer tablas y columnas.", description: "Pierde el miedo a SQL leyendo datos simples.", doc: null, script: "scripts/01_practica_select.sql", sol: "soluciones/01_practica_select_resuelta.sql", defaultTab: "script" },
+      { id: "where", title: "Practica 02 - WHERE", type: "Practica", summary: "Filtra filas con condiciones, LIKE e IS NULL.", description: "Aprende a quedarte solo con los datos que interesan.", doc: null, script: "scripts/02_practica_where.sql", sol: "soluciones/02_practica_where_resuelta.sql", defaultTab: "script" },
+      { id: "order", title: "Practica 03 - ORDER BY / LIMIT", type: "Practica", summary: "Ordena resultados y limita salidas.", description: "Controla el orden y el tamano del resultado.", doc: null, script: "scripts/03_practica_order_limit.sql", sol: "soluciones/03_practica_order_limit_resuelta.sql", defaultTab: "script" },
+      { id: "create", title: "Practica 04 - CREATE / INSERT", type: "Practica", summary: "Crea tablas sencillas e inserta datos.", description: "Da el salto de leer a construir informacion.", doc: null, script: "scripts/04_practica_create_insert.sql", sol: "soluciones/04_practica_create_insert_resuelta.sql", defaultTab: "script" },
+      { id: "join", title: "Practica 05 - JOIN", type: "Practica", summary: "Relaciona socios, libros y prestamos.", description: "Empieza a pensar en varias tablas a la vez.", doc: null, script: "scripts/05_practica_join.sql", sol: "soluciones/05_practica_join_resuelta.sql", defaultTab: "script" },
+      { id: "group", title: "Practica 06 - GROUP BY", type: "Practica", summary: "Cuenta, agrupa y resume informacion.", description: "Convierte filas en pequenos indicadores.", doc: null, script: "scripts/06_practica_group_by.sql", sol: "soluciones/06_practica_group_by_resuelta.sql", defaultTab: "script" },
+      { id: "final", title: "Proyecto - Prueba final", type: "Boss", summary: "Cierre del curso con consultas de repaso global.", description: "Aplica lo aprendido en una practica final corta.", doc: null, script: "scripts/99_miniproyecto_final.sql", sol: "soluciones/99_miniproyecto_final_resuelto.sql", defaultTab: "script" }
+    ];
+
+    const appState = {
+      db: null,
+      sqlJs: null,
+      currentLessonIndex: 0,
+      currentTab: "doc",
+      currentSourceText: "",
+      currentSourcePath: "",
+      tableNames: []
+    };
+
+    const refs = {
+      lessonList: document.getElementById("lesson-list"),
+      appShell: document.querySelector(".app-shell"),
+      workspace: document.getElementById("workspace"),
+      mainGrid: document.getElementById("main-grid"),
+      contentViewer: document.getElementById("content-viewer"),
+      contentTabs: document.getElementById("content-tabs"),
+      courseTitle: document.getElementById("course-title"),
+      courseDescription: document.getElementById("course-description"),
+      lessonTitle: document.getElementById("lesson-title"),
+      lessonSubtitle: document.getElementById("lesson-subtitle"),
+      sqlEditor: document.getElementById("sql-editor"),
+      resultsBody: document.getElementById("results-body"),
+      labColumn: document.getElementById("lab-column"),
+      labResizer: document.getElementById("lab-resizer"),
+      dbStatus: document.getElementById("db-status"),
+      dbStatusDetail: document.getElementById("db-status-detail"),
+      editorStatus: document.getElementById("editor-status"),
+      schemaModal: document.getElementById("schema-modal"),
+      schemaBody: document.getElementById("mermaid-root"),
+      helpModal: document.getElementById("help-modal"),
+      statSocios: document.getElementById("stat-socios"),
+      statLibros: document.getElementById("stat-libros"),
+      statPrestamos: document.getElementById("stat-prestamos")
+    };
+
+    function loadSidebarState() {
+      return localStorage.getItem(`${STORAGE_PREFIX}_sidebar`) === "collapsed";
+    }
+
+    function saveSidebarState(collapsed) {
+      localStorage.setItem(`${STORAGE_PREFIX}_sidebar`, collapsed ? "collapsed" : "expanded");
+    }
+
+    function loadPanelState(key) {
+      return localStorage.getItem(`${STORAGE_PREFIX}_${key}`) === "hidden";
+    }
+
+    function savePanelState(key, hidden) {
+      localStorage.setItem(`${STORAGE_PREFIX}_${key}`, hidden ? "hidden" : "shown");
+    }
+
+    function saveDraft() {
+      const lesson = lessons[appState.currentLessonIndex];
+      localStorage.setItem(`${STORAGE_PREFIX}_draft_${lesson.id}`, refs.sqlEditor.value);
+    }
+
+    function loadDraft(lessonId) {
+      return localStorage.getItem(`${STORAGE_PREFIX}_draft_${lessonId}`) || "";
+    }
+
+    function escapeHtml(value) {
+      return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
+
+    function renderLessonList() {
+      refs.lessonList.innerHTML = "";
+      lessons.forEach((lesson, index) => {
+        const item = document.createElement("li");
+        item.className = "lesson-item" + (index === appState.currentLessonIndex ? " active" : "");
+        item.innerHTML = `
+          <div class="lesson-type">${lesson.type}</div>
+          <strong>${lesson.title}</strong>
+          <span>${lesson.summary}</span>
+        `;
+        item.addEventListener("click", () => loadLesson(index));
+        refs.lessonList.appendChild(item);
+      });
+      updateProgress();
+    }
+
+    function updateProgress() {
+      refs.courseDescription.textContent =
+        lessons[appState.currentLessonIndex]?.description || "Cargando materiales del curso y la base Biblioteca Nivel 0.";
+    }
+
+    function buildTabs(lesson) {
+      const tabs = [];
+      if (lesson.doc) tabs.push({ id: "doc", label: "Teoria" });
+      if (lesson.script) tabs.push({ id: "script", label: "Ejercicio" });
+      if (lesson.sol) tabs.push({ id: "sol", label: "Solucion" });
+      if (lesson.exam) tabs.push({ id: "exam", label: "Examen" });
+      return tabs;
+    }
+
+    function renderTabs(lesson, tabs) {
+      refs.contentTabs.innerHTML = "";
+      tabs.forEach((tab) => {
+        const button = document.createElement("button");
+        button.className = "tab" + (tab.id === appState.currentTab ? " active" : "");
+        button.textContent = tab.label;
+        button.addEventListener("click", async () => {
+          appState.currentTab = tab.id;
+          renderTabs(lesson, tabs);
+          await renderCurrentTab();
+        });
+        refs.contentTabs.appendChild(button);
+      });
+    }
+
+    async function loadLesson(index) {
+      appState.currentLessonIndex = index;
+      const lesson = lessons[index];
+      const availableTabs = buildTabs(lesson);
+      appState.currentTab = availableTabs.some((tab) => tab.id === lesson.defaultTab) ? lesson.defaultTab : availableTabs[0]?.id || "doc";
+
+      refs.courseTitle.textContent = lesson.title;
+      refs.courseDescription.textContent = lesson.description;
+      refs.lessonTitle.textContent = lesson.title;
+      refs.lessonSubtitle.textContent = lesson.summary;
+      refs.sqlEditor.value = loadDraft(lesson.id);
+      refs.editorStatus.textContent = lesson.script ? "Listo para practicar sentencia a sentencia." : "Unidad informativa cargada.";
+
+      renderLessonList();
+      renderTabs(lesson, availableTabs);
+      await renderCurrentTab();
+    }
+
+    async function renderCurrentTab() {
+      const lesson = lessons[appState.currentLessonIndex];
+      if (appState.currentTab === "exam" && lesson.exam) {
+        appState.currentSourceText = "";
+        appState.currentSourcePath = lesson.exam;
+        refs.contentViewer.innerHTML = `<iframe class="exam-frame" src="${lesson.exam}" title="Examen interactivo"></iframe>`;
+        return;
+      }
+
+      const path = lesson[appState.currentTab];
+      if (!path) {
+        refs.contentViewer.innerHTML = `<div class="viewer-empty">No hay contenido para esta pestana.</div>`;
+        return;
+      }
+
+      refs.contentViewer.innerHTML = `<div class="viewer-empty">Cargando ${path}...</div>`;
+      try {
+        const response = await fetch(path);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        appState.currentSourceText = text;
+        appState.currentSourcePath = path;
+        if (path.endsWith(".md")) {
+          refs.contentViewer.innerHTML = `<div class="viewer viewer-markdown">${marked.parse(text)}</div>`;
+          Prism.highlightAllUnder(refs.contentViewer);
+        } else {
+          const languageClass = path.endsWith(".html") ? "language-markup" : "language-sql";
+          refs.contentViewer.innerHTML = `<pre class="viewer-code ${languageClass}"><code class="${languageClass}"></code></pre>`;
+          const code = refs.contentViewer.querySelector("code");
+          code.textContent = text;
+          Prism.highlightElement(code);
+        }
+      } catch (error) {
+        refs.contentViewer.innerHTML = `<div class="viewer-empty">No se pudo cargar ${path}. Abre este HTML con Live Server o un servidor local.<br>Detalle: ${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function appendSourceToEditor() {
+      if (!appState.currentSourceText) {
+        refs.editorStatus.textContent = "No hay bloque actual para copiar al editor.";
+        return;
+      }
+      const editor = refs.sqlEditor;
+      const selection = window.getSelection();
+      let sourceToInsert = "";
+      if (selection && selection.toString().trim() && refs.contentViewer.contains(selection.anchorNode)) sourceToInsert = selection.toString();
+      else sourceToInsert = appState.currentSourceText;
+      if (!sourceToInsert.trim()) {
+        refs.editorStatus.textContent = "No se ha detectado texto util para enviar al editor.";
+        return;
+      }
+      const prefix = editor.value.trim() ? "\n\n" : "";
+      const start = editor.selectionStart ?? editor.value.length;
+      const end = editor.selectionEnd ?? editor.value.length;
+      const nextValue = editor.value.slice(0, start) + prefix + sourceToInsert + editor.value.slice(end);
+      editor.value = nextValue;
+      editor.focus();
+      editor.selectionStart = editor.selectionEnd = start + prefix.length + sourceToInsert.length;
+      saveDraft();
+      refs.editorStatus.textContent = `Bloque cargado desde ${appState.currentSourcePath}.`;
+    }
+
+    async function initDb() {
+      try {
+        refs.dbStatus.textContent = "Cargando motor...";
+        refs.dbStatusDetail.textContent = "Descargando SQLite en WebAssembly.";
+        appState.sqlJs = await initSqlJs({ locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` });
+        appState.db = new appState.sqlJs.Database();
+        await resetDb();
+      } catch (error) {
+        refs.dbStatus.textContent = "Error de motor";
+        refs.dbStatusDetail.textContent = error.message;
+        renderMessage(`No se pudo iniciar SQL.js.\n${error.message}`, "error", true);
+      }
+    }
+
+    async function resetDb() {
+      if (!appState.sqlJs) return;
+      refs.dbStatus.textContent = "Reseteando BD...";
+      refs.dbStatusDetail.textContent = "Aplicando script base del curso.";
+      try { appState.db.close(); } catch {}
+      appState.db = new appState.sqlJs.Database();
+      const response = await fetch(COURSE_FILES.reset);
+      if (!response.ok) throw new Error(`No se pudo cargar ${COURSE_FILES.reset}`);
+      const sql = await response.text();
+      appState.db.exec(sql);
+      refs.dbStatus.textContent = "Base lista";
+      refs.dbStatusDetail.textContent = "Biblioteca Nivel 0 cargada en memoria.";
+      renderMessage("Base restaurada correctamente. Puedes practicar sin miedo.", "success");
+      await refreshRuntimeViews();
+    }
+
+    async function refreshRuntimeViews() {
+      updateStats();
+    }
+
+    function runQuery(sqlText) {
+      return appState.db.exec(sqlText);
+    }
+
+    function getEditorSelectionOrWhole() {
+      const start = refs.sqlEditor.selectionStart;
+      const end = refs.sqlEditor.selectionEnd;
+      const selected = refs.sqlEditor.value.slice(start, end).trim();
+      return selected || refs.sqlEditor.value.trim();
+    }
+
+    function executeEditor(runSelectionOnly = false) {
+      if (!appState.db) return;
+      const sqlText = runSelectionOnly ? getEditorSelectionOrWhole() : refs.sqlEditor.value.trim();
+      if (!sqlText) {
+        renderMessage("No hay SQL para ejecutar.", "info");
+        return;
+      }
+      try {
+        const results = runQuery(sqlText);
+        renderResults(results, sqlText);
+        refs.editorStatus.textContent = runSelectionOnly ? "Se ha ejecutado la seleccion actual." : "Se ha ejecutado el contenido del editor.";
+        refreshRuntimeViews();
+      } catch (error) {
+        renderMessage(`Error SQL:\n${error.message}`, "error", true);
+      }
+    }
+
+    function renderMessage(message, type = "info", replace = true) {
+      const block = `<div class="message ${type}">${escapeHtml(message).replaceAll("\n", "<br>")}</div>`;
+      if (replace) refs.resultsBody.innerHTML = block;
+      else refs.resultsBody.insertAdjacentHTML("afterbegin", block);
+    }
+
+    function renderResults(results, sourceSql) {
+      refs.resultsBody.innerHTML = "";
+      const sourceBlock = document.createElement("div");
+      sourceBlock.className = "message info";
+      sourceBlock.innerHTML = `<strong>SQL ejecutado</strong><br><code>${escapeHtml(sourceSql)}</code>`;
+      refs.resultsBody.appendChild(sourceBlock);
+
+      if (!results || results.length === 0) {
+        const ok = document.createElement("div");
+        ok.className = "message success";
+        ok.textContent = "Sentencia ejecutada correctamente. No ha devuelto filas para mostrar.";
+        refs.resultsBody.appendChild(ok);
+        return;
+      }
+
+      results.forEach((result, index) => {
+        const wrapper = document.createElement("section");
+        wrapper.className = "result-card";
+        wrapper.innerHTML = `<h4>Resultado ${index + 1} - ${result.values.length} fila(s)</h4>`;
+        const table = document.createElement("table");
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        result.columns.forEach((column) => {
+          const th = document.createElement("th");
+          th.textContent = column;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        const tbody = document.createElement("tbody");
+        result.values.forEach((row) => {
+          const tr = document.createElement("tr");
+          row.forEach((value) => {
+            const td = document.createElement("td");
+            td.textContent = value === null ? "NULL" : String(value);
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        const scroll = document.createElement("div");
+        scroll.className = "table-scroll";
+        scroll.appendChild(table);
+        wrapper.appendChild(scroll);
+        refs.resultsBody.appendChild(wrapper);
+      });
+    }
+
+    function updateStats() {
+      refs.statSocios.textContent = getScalar("SELECT COUNT(*) AS total FROM socios;");
+      refs.statLibros.textContent = getScalar("SELECT COUNT(*) AS total FROM libros;");
+      refs.statPrestamos.textContent = getScalar("SELECT COUNT(*) AS total FROM prestamos;");
+    }
+
+    function getScalar(query) {
+      try {
+        const result = runQuery(query);
+        return result[0]?.values?.[0]?.[0] ?? "-";
+      } catch {
+        return "-";
+      }
+    }
+
+    function buildSchema() {
+      const tables = runQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name;")[0]?.values?.map((row) => row[0]) || [];
+      let diagram = "erDiagram\n";
+      tables.forEach((tableName) => {
+        const fks = runQuery(`PRAGMA foreign_key_list(${tableName});`)[0]?.values || [];
+        fks.forEach((fk) => {
+          diagram += `    ${fk[2]} ||--o{ ${tableName} : "${fk[3]}"\n`;
+        });
+      });
+      tables.forEach((tableName) => {
+        const columns = runQuery(`PRAGMA table_info(${tableName});`)[0]?.values || [];
+        const fkMap = new Set((runQuery(`PRAGMA foreign_key_list(${tableName});`)[0]?.values || []).map((row) => row[3]));
+        diagram += `    ${tableName} {\n`;
+        columns.forEach((col) => {
+          const type = (col[2] || "TEXT").split(" ")[0];
+          const modifiers = [];
+          if (col[5] === 1) modifiers.push("PK");
+          if (fkMap.has(col[1])) modifiers.push("FK");
+          diagram += `        ${type} ${col[1]} ${modifiers.length ? `"${modifiers.join(",")}"` : ""}\n`;
+        });
+        diagram += "    }\n";
+      });
+      return diagram;
+    }
+
+    function openSchema() {
+      try {
+        refs.schemaBody.innerHTML = `<div class="mermaid">${buildSchema()}</div>`;
+        mermaid.init(undefined, refs.schemaBody.querySelectorAll(".mermaid"));
+        refs.schemaModal.style.display = "flex";
+      } catch (error) {
+        refs.schemaBody.innerHTML = `<div class="message error">${escapeHtml(error.message)}</div>`;
+        refs.schemaModal.style.display = "flex";
+      }
+    }
+
+    function downloadDb() {
+      if (!appState.db) return;
+      const binaryArray = appState.db.export();
+      const blob = new Blob([binaryArray], { type: "application/octet-stream" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "biblioteca_nivel0_laboratorio.sqlite";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      refs.editorStatus.textContent = "Base descargada desde la memoria del laboratorio.";
+    }
+
+    function focusTable(tableName) {
+      const sql = `SELECT COUNT(*) AS total FROM ${tableName};\nSELECT * FROM ${tableName} LIMIT 25;`;
+      refs.sqlEditor.value = sql;
+      saveDraft();
+      executeEditor(false);
+      refs.editorStatus.textContent = `Consulta rapida cargada para ${tableName}.`;
+    }
+
+    function applySidebarState(collapsed) {
+      refs.appShell.classList.toggle("sidebar-hidden", collapsed);
+      const toggle = document.getElementById("btn-toggle-sidebar");
+      const restore = document.getElementById("btn-restore-sidebar");
+      toggle.textContent = collapsed ? "▶" : "◀";
+      toggle.title = collapsed ? "Abrir menu" : "Plegar menu";
+      restore.classList.toggle("show", collapsed);
+      saveSidebarState(collapsed);
+    }
+
+    function applyStatusState(hidden) {
+      refs.workspace.classList.toggle("status-hidden", hidden);
+      document.getElementById("btn-toggle-status").textContent = hidden ? "Mostrar tablas" : "Ocultar tablas";
+      document.getElementById("btn-hide-status-panel").textContent = hidden ? "▼" : "▲";
+      savePanelState("status", hidden);
+    }
+
+    function applyContentState(hidden) {
+      if (hidden && refs.mainGrid.classList.contains("lab-hidden")) return;
+      refs.mainGrid.classList.toggle("content-hidden", hidden);
+      document.getElementById("btn-toggle-content").textContent = hidden ? "Mostrar teoria" : "Ocultar teoria";
+      document.getElementById("btn-restore-content").classList.toggle("show", hidden);
+      savePanelState("content", hidden);
+    }
+
+    function applyLabState(hidden) {
+      if (hidden && refs.mainGrid.classList.contains("content-hidden")) return;
+      refs.mainGrid.classList.toggle("lab-hidden", hidden);
+      document.getElementById("btn-toggle-lab").textContent = hidden ? "Mostrar laboratorio" : "Ocultar laboratorio";
+      document.getElementById("btn-restore-lab").classList.toggle("show", hidden);
+      savePanelState("lab", hidden);
+    }
+
+    function syncFullscreenButton() {
+      const button = document.getElementById("btn-fullscreen");
+      button.textContent = document.fullscreenElement ? "Salir pantalla completa" : "Pantalla completa";
+    }
+
+    async function toggleFullscreen() {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (error) {
+        renderMessage(`No se pudo cambiar a pantalla completa: ${error.message}`, "error", true);
+      }
+    }
+
+    function initLabResizer() {
+      const minEditor = 180;
+      const minResults = 220;
+      let dragging = false;
+
+      const onPointerMove = (event) => {
+        if (!dragging) return;
+        const rect = refs.labColumn.getBoundingClientRect();
+        const nextHeight = event.clientY - rect.top - 6;
+        const maxEditor = rect.height - minResults - 12;
+        const clamped = Math.max(minEditor, Math.min(nextHeight, maxEditor));
+        refs.labColumn.style.setProperty("--lab-editor-size", `${clamped}px`);
+      };
+
+      const stopDragging = () => {
+        if (!dragging) return;
+        dragging = false;
+        refs.labResizer.classList.remove("dragging");
+        document.body.style.userSelect = "";
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", stopDragging);
+      };
+
+      refs.labResizer.addEventListener("pointerdown", (event) => {
+        dragging = true;
+        refs.labResizer.classList.add("dragging");
+        document.body.style.userSelect = "none";
+        refs.labResizer.setPointerCapture(event.pointerId);
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", stopDragging);
+      });
+    }
+
+    refs.sqlEditor.addEventListener("input", saveDraft);
+    refs.sqlEditor.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        executeEditor(true);
+      }
+    });
+
+    document.getElementById("btn-run-selection").addEventListener("click", () => executeEditor(true));
+    document.getElementById("btn-run-sql").addEventListener("click", () => executeEditor(false));
+    document.getElementById("btn-clear-editor").addEventListener("click", () => {
+      refs.sqlEditor.value = "";
+      saveDraft();
+      refs.editorStatus.textContent = "Editor limpiado.";
+    });
+    document.getElementById("btn-load-snippet").addEventListener("click", appendSourceToEditor);
+    document.getElementById("btn-open-help").addEventListener("click", () => {
+      refs.helpModal.style.display = "flex";
+    });
+    document.getElementById("btn-fullscreen").addEventListener("click", toggleFullscreen);
+    document.getElementById("btn-reset-db").addEventListener("click", async () => {
+      try { await resetDb(); } catch (error) { renderMessage(error.message, "error", true); }
+    });
+    document.getElementById("btn-download-db").addEventListener("click", downloadDb);
+    document.getElementById("btn-open-schema").addEventListener("click", openSchema);
+    document.getElementById("btn-toggle-sidebar").addEventListener("click", () => {
+      applySidebarState(!refs.appShell.classList.contains("sidebar-hidden"));
+    });
+    document.getElementById("btn-restore-sidebar").addEventListener("click", () => applySidebarState(false));
+    document.getElementById("btn-toggle-status").addEventListener("click", () => {
+      applyStatusState(!refs.workspace.classList.contains("status-hidden"));
+    });
+    document.getElementById("btn-hide-status-panel").addEventListener("click", () => {
+      applyStatusState(!refs.workspace.classList.contains("status-hidden"));
+    });
+    document.getElementById("btn-toggle-content").addEventListener("click", () => {
+      applyContentState(!refs.mainGrid.classList.contains("content-hidden"));
+    });
+    document.getElementById("btn-hide-content-panel").addEventListener("click", () => applyContentState(true));
+    document.getElementById("btn-restore-content").addEventListener("click", () => applyContentState(false));
+    document.getElementById("btn-toggle-lab").addEventListener("click", () => {
+      applyLabState(!refs.mainGrid.classList.contains("lab-hidden"));
+    });
+    document.getElementById("btn-hide-lab-panel").addEventListener("click", () => applyLabState(true));
+    document.getElementById("btn-restore-lab").addEventListener("click", () => applyLabState(false));
+    document.getElementById("btn-close-schema").addEventListener("click", () => { refs.schemaModal.style.display = "none"; });
+    document.getElementById("btn-close-help").addEventListener("click", () => { refs.helpModal.style.display = "none"; });
+    refs.schemaModal.addEventListener("click", (event) => {
+      if (event.target === refs.schemaModal) refs.schemaModal.style.display = "none";
+    });
+    refs.helpModal.addEventListener("click", (event) => {
+      if (event.target === refs.helpModal) refs.helpModal.style.display = "none";
+    });
+    document.addEventListener("fullscreenchange", syncFullscreenButton);
+    document.querySelectorAll(".status-card[data-table]").forEach((card) => {
+      card.addEventListener("click", () => focusTable(card.dataset.table));
+    });
+
+    mermaid.initialize({ startOnLoad: false, theme: "default" });
+    marked.setOptions({ breaks: true, gfm: true });
+
+    (async function boot() {
+      syncFullscreenButton();
+      initLabResizer();
+      applySidebarState(loadSidebarState());
+      applyStatusState(loadPanelState("status"));
+      applyContentState(loadPanelState("content"));
+      applyLabState(loadPanelState("lab"));
+      renderLessonList();
+      await initDb();
+      await loadLesson(0);
+    })();
+  </script>
+</body>
+</html>
