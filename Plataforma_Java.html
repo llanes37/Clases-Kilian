@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curso Java | Plataforma Interactiva</title>
+  <meta name="description" content="Plataforma interactiva de apoyo al curso de Java con teoría, código, laboratorio y proyecto final.">
+  <meta name="theme-color" content="#1e1e1e">
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23007acc'/%3E%3Cstop offset='100%25' stop-color='%23f97316'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23111127'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='url(%23g)' opacity='0.18'/%3E%3Cpath d='M22 18h20v5H33v23c0 4-2 7-8 7-2 0-4-.3-5.5-.9v-6c1.5.7 2.9 1 4.4 1 2.2 0 3.1-.9 3.1-3V23h-5z' fill='%23ffffff'/%3E%3Cpath d='M40 18h7l-8 13 8 15h-7l-4.5-9-3 4.7V46h-6V18h6v14.2z' fill='%23f8fafc'/%3E%3C/svg%3E">
+  
+  <!-- Tipografías de programación -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Prism.js (Syntax Highlighting) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  
+  <!-- Marked.js (Markdown Renderer) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #1e1e1e;
+      --bg-panel: #252526;
+      --bg-sidebar: #333333;
+      --border-color: #454545;
+      --accent: #007acc;
+      --accent-strong: #0ea5e9;
+      --text-main: #cccccc;
+      --text-light: #ffffff;
+      --splitter: #3f3f46;
+      --splitter-hover: #007acc;
+      --sidebar-width: 250px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* Custom Scrollbar Premium */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: #444; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #666; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Bar */
+    .topbar {
+      min-height: 56px;
+      background-color: var(--bg-sidebar);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+
+    .topbar .logo { margin-right: 12px; color: var(--accent); font-weight: bold; }
+    .topbar-title {
+      flex: 1 1 280px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .topbar-title strong {
+      font-size: 0.95rem;
+      color: #fff;
+    }
+    .topbar-title small {
+      color: #a5b4fc;
+      font-weight: 500;
+    }
+
+    /* Botones de Vista (Toggles) */
+    .view-toggles {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .toggle-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .toggle-btn:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+    }
+    .toggle-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(14, 165, 233, 0.22);
+    }
+    .lesson-status {
+      font-size: 0.78rem;
+      color: #dbeafe;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9));
+      border: 1px solid rgba(96,165,250,0.18);
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .nav-btn {
+      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 14px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: linear-gradient(180deg, rgba(59,130,246,0.22), rgba(255,255,255,0.08));
+      transform: translateY(-1px);
+    }
+    .nav-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .action-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .action-btn:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+    }
+    .action-btn.is-active {
+      background: rgba(14, 165, 233, 0.18);
+      border-color: rgba(14, 165, 233, 0.45);
+    }
+    .focus-modes {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.42);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .focus-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .focus-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    .focus-btn.is-active {
+      background: linear-gradient(135deg, rgba(56,189,248,0.24), rgba(59,130,246,0.22));
+      color: #fff;
+      border-color: rgba(96,165,250,0.3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    /* Layout Principal */
+    .main-workspace {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 56px);
+      position: relative;
+    }
+
+    /* Barra Lateral de Lecciones */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: 200px;
+      background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.28s ease, min-width 0.28s ease, opacity 0.22s ease, transform 0.28s ease, border-color 0.28s ease;
+      transform-origin: left center;
+      overflow: hidden;
+    }
+    .sidebar.collapsed {
+      width: 0;
+      min-width: 0;
+      opacity: 0;
+      transform: translateX(-20px);
+      border-right-color: transparent;
+      pointer-events: none;
+    }
+    .sidebar-toggle-rail {
+      position: absolute;
+      top: 18px;
+      left: calc(var(--sidebar-width) - 18px);
+      width: 38px;
+      height: 84px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(37,37,38,0.95), rgba(17,24,39,0.95));
+      color: #fff;
+      cursor: pointer;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+      transition: left 0.28s ease, background 0.2s ease, transform 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+    .sidebar-toggle-rail:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(51,65,85,0.98), rgba(15,23,42,0.98));
+    }
+    .sidebar-toggle-rail.is-collapsed {
+      left: 12px;
+    }
+    .sidebar-toggle-icon {
+      font-size: 1rem;
+      line-height: 1;
+      transition: transform 0.25s ease;
+    }
+    .sidebar-toggle-rail.is-collapsed .sidebar-toggle-icon {
+      transform: rotate(180deg);
+    }
+    .sidebar-toggle-label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .sidebar-title {
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #999;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .sidebar-tools {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .course-progress {
+      padding: 10px 16px 14px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progress-text {
+      font-size: 0.78rem;
+      color: #cfcfcf;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #22c55e, #38bdf8);
+      transition: width 0.25s ease;
+    }
+    .lesson-search {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.85rem;
+    }
+    .lesson-search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0,122,204,0.18);
+    }
+    .search-hint {
+      margin-top: 8px;
+      font-size: 0.72rem;
+      color: #8f8f8f;
+    }
+    .empty-state {
+      padding: 18px 16px;
+      color: #8f8f8f;
+      font-size: 0.82rem;
+    }
+    .section-group {
+      list-style: none;
+    }
+    .section-heading {
+      width: 100%;
+      padding: 12px 16px 8px;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      background: linear-gradient(180deg, rgba(15,23,42,0.34), rgba(37,37,38,0));
+      border-top: 1px solid rgba(255,255,255,0.04);
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+    }
+    .section-heading:hover {
+      background: linear-gradient(180deg, rgba(30,41,59,0.46), rgba(37,37,38,0.08));
+      color: #cbd5e1;
+    }
+    .section-heading-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .section-heading-chevron {
+      font-size: 0.78rem;
+      color: #60a5fa;
+      transition: transform 0.2s ease;
+    }
+    .section-heading-badge {
+      font-size: 0.64rem;
+      letter-spacing: 0;
+      text-transform: none;
+      padding: 3px 8px;
+      border-radius: 999px;
+      color: #dbeafe;
+      border: 1px solid rgba(148,163,184,0.16);
+      background: rgba(148,163,184,0.12);
+    }
+    .section-items {
+      list-style: none;
+    }
+    .section-group.is-collapsed .section-items {
+      display: none;
+    }
+    .section-group.is-collapsed .section-heading-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .lesson-list {
+      flex: 1;
+      overflow-y: auto;
+      list-style: none;
+    }
+
+    .lesson-item {
+      padding: 12px 18px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      transition: all 0.2s ease;
+      color: #a3a3a3;
+    }
+
+    .lesson-item:hover {
+      background-color: rgba(255,255,255,0.03);
+      color: #e5e5e5;
+    }
+
+    .lesson-item.active {
+      background-color: rgba(0, 122, 204, 0.08); /* Fondo azul sutil */
+      border-left: 3px solid var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+    .lesson-item.project-item {
+      border-left-color: rgba(249,115,22,0.22);
+      background: linear-gradient(90deg, rgba(249,115,22,0.08), rgba(255,255,255,0));
+    }
+    .lesson-item.project-item.active {
+      border-left-color: #f97316;
+      background: linear-gradient(90deg, rgba(249,115,22,0.16), rgba(14,165,233,0.06));
+    }
+    .lesson-item.project-item::before {
+      content: "PF";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      margin-right: 10px;
+      border-radius: 999px;
+      background: rgba(249,115,22,0.16);
+      color: #fdba74;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+    .lesson-item.is-complete::after {
+      content: "Completada";
+      float: right;
+      font-size: 0.68rem;
+      color: #86efac;
+      background: rgba(34,197,94,0.14);
+      border: 1px solid rgba(34,197,94,0.22);
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+    /* Contenedor Divisible Vertical (Código vs Markdown) */
+    .v-split-container {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .upper-panels {
+      display: flex;
+      flex: 1.5; /* Peso mayor por defecto respecto al inferior */
+      min-height: 100px;
+      overflow: hidden;
+    }
+
+    /* Paneles Individuales */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+    }
+
+    .panel-header {
+      padding: 10px 16px;
+      background: linear-gradient(180deg, rgba(51,51,51,0.96), rgba(37,37,38,0.96));
+      font-size: 0.8rem;
+      color: #ccc;
+      border-bottom: 1px solid var(--border-color);
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .panel-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    /* Configuración Panel Izquierdo (Código) */
+    #code-panel {
+      width: 50%;
+      min-width: 200px;
+    }
+
+    #code-panel .panel-content {
+      padding: 0;
+      background-color: #1d1f21;
+    }
+
+    #code-panel pre {
+      margin: 0;
+      border-radius: 0;
+      height: 100%;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    
+    .btn-copy {
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(148,163,184,0.08));
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff;
+      padding: 6px 11px;
+      border-radius: 12px 18px 12px 18px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy:hover {
+      background: linear-gradient(135deg, rgba(14,165,233,0.92), rgba(59,130,246,0.88));
+      border-color: transparent;
+      transform: translateY(-1px) rotate(-1deg);
+    }
+    .btn-copy:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .btn-secondary {
+      background: rgba(14,165,233,0.12);
+      border: 1px solid rgba(14,165,233,0.35);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(14,165,233,0.24);
+      border-color: var(--accent-strong);
+    }
+    .btn-secondary:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+    .btn-secondary.is-active {
+      background: rgba(34,197,94,0.2);
+      border-color: rgba(34,197,94,0.55);
+      color: #dcfce7;
+    }
+    .btn-secondary.is-primary {
+      background: linear-gradient(135deg, rgba(0,122,204,0.9), rgba(14,165,233,0.92));
+      border-color: transparent;
+      box-shadow: 0 8px 20px rgba(14,165,233,0.22);
+    }
+    #btn-prev-lesson {
+      border-radius: 18px 12px 12px 18px;
+    }
+    #btn-next-lesson {
+      border-radius: 12px 18px 18px 12px;
+      background: linear-gradient(180deg, rgba(14,165,233,0.18), rgba(255,255,255,0.05));
+    }
+    .panel-file {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      color: #8f8f8f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Configuración Panel Derecho (Markdown/Teoría) */
+    #theory-panel {
+      flex: 1;
+      min-width: 200px;
+      background-color: var(--bg-panel);
+    }
+
+    .markdown-body {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #d4d4d4;
+    }
+    
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+      color: #fff;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .markdown-body h1 { margin-top: 0; font-size: 1.8rem; color: var(--accent); }
+    .markdown-body p { margin-bottom: 16px; }
+    .markdown-body ul, .markdown-body ol { margin-bottom: 16px; padding-left: 24px; }
+    .markdown-body li { margin-bottom: 8px; }
+    
+    .markdown-body pre {
+      background: #111;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+    .markdown-body code {
+      font-family: 'Fira Code', monospace;
+      background: rgba(255,255,255,0.1);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: #ce9178;
+    }
+    .markdown-body pre code { background: none; padding: 0; color: #dcdcaa; }
+    .context-card {
+      margin-bottom: 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(135deg, rgba(15,23,42,0.92), rgba(30,41,59,0.75));
+      box-shadow: 0 18px 30px rgba(0,0,0,0.16);
+    }
+    .context-card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .context-card p {
+      margin: 0 0 12px;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .context-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(96,165,250,0.16);
+      background: rgba(15,23,42,0.72);
+      color: #bfdbfe;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    .content-unavailable {
+      margin-bottom: 18px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(96,165,250,0.16);
+      background: linear-gradient(135deg, rgba(15,23,42,0.94), rgba(30,41,59,0.76));
+      box-shadow: 0 18px 30px rgba(0,0,0,0.16);
+    }
+    .content-unavailable h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .content-unavailable p {
+      margin: 0 0 12px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .content-unavailable strong {
+      color: #f8fafc;
+    }
+    .context-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .context-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      color: #dbeafe;
+      font-size: 0.72rem;
+    }
+    .context-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-mini {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-mini:hover {
+      background: rgba(14,165,233,0.16);
+      border-color: rgba(14,165,233,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-mini.is-warm:hover {
+      background: rgba(249,115,22,0.18);
+      border-color: rgba(249,115,22,0.38);
+    }
+    .is-hidden {
+      display: none !important;
+    }
+
+    /* Separadores Arrastrables (Resizers) */
+    .resizer-v {
+      width: 6px;
+      background-color: var(--border-color);
+      cursor: col-resize;
+      transition: background 0.2s;
+      z-index: 5;
+    }
+    .resizer-v:hover, .resizer-v:active { background-color: var(--accent); }
+
+    .resizer-h {
+      height: 6px;
+      background-color: var(--border-color);
+      cursor: row-resize;
+      transition: background 0.2s;
+      z-index: 5;
+    }
+    .resizer-h:hover, .resizer-h:active { background-color: var(--accent); }
+
+    /* Panel Inferior (Compilador Iframe) */
+    #compiler-panel {
+      flex: 1; /* Permite que absorba la redimensión del arrastre de forma limpia */
+      min-height: 150px;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    #compiler-iframe {
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      border: none;
+      background: #000;
+    }
+
+    /* Loading States */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #888;
+      font-style: italic;
+    }
+    .error-msg {
+      color: #f48771;
+      padding: 16px;
+      border-left: 4px solid #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      margin-top: 10px;
+    }
+    .compiler-feedback {
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      color: #b3b3b3;
+      background: rgba(255,255,255,0.03);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+    .compiler-feedback.is-error {
+      color: #fca5a5;
+      background: rgba(127, 29, 29, 0.22);
+    }
+    .compiler-feedback.is-success {
+      color: #93c5fd;
+      background: rgba(30, 64, 175, 0.18);
+    }
+    .compiler-feedback.is-info {
+      color: #c4b5fd;
+      background: rgba(76, 29, 149, 0.18);
+    }
+
+    @media (max-width: 980px) {
+      body {
+        overflow: auto;
+      }
+      .topbar {
+        height: auto;
+        min-height: 40px;
+        padding: 10px 12px;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .main-workspace {
+        flex-direction: column;
+        height: auto;
+      }
+      .sidebar {
+        width: 100%;
+        min-width: 0;
+        max-height: 40vh;
+      }
+      .sidebar.collapsed {
+        max-height: 0;
+        transform: translateY(-12px);
+      }
+      .sidebar-toggle-rail {
+        top: 10px;
+        left: auto;
+        right: 12px;
+        width: auto;
+        height: 38px;
+        padding: 0 12px;
+        flex-direction: row;
+      }
+      .sidebar-toggle-rail.is-collapsed {
+        left: auto;
+        right: 12px;
+      }
+      .sidebar-toggle-label {
+        writing-mode: initial;
+        transform: none;
+      }
+      .upper-panels {
+        flex-direction: column;
+      }
+      #code-panel,
+      #theory-panel,
+      #compiler-panel {
+        width: 100% !important;
+        min-width: 0;
+      }
+      .resizer-v,
+      .resizer-h {
+        display: none !important;
+      }
+      .v-split-container {
+        min-height: calc(100vh - 180px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <span class="logo">&lt;/&gt;</span>
+    <div class="topbar-title">
+      <strong>Joaquín - Editor Interactivo Java</strong>
+      <small><a href="../../index.html" style="color: var(--accent); text-decoration: none; font-weight: 700;">clasesonlinejoaquin.es</a></small>
+    </div>
+    <div class="view-toggles">
+      <span class="lesson-status" id="lesson-status">Sin lección</span>
+      <button class="nav-btn" id="btn-prev-lesson" type="button">← Anterior</button>
+      <button class="nav-btn" id="btn-next-lesson" type="button">Siguiente →</button>
+      <div class="focus-modes" aria-label="Modos de enfoque">
+        <button class="focus-btn is-active" data-focus-mode="todo" type="button">Todo</button>
+        <button class="focus-btn" data-focus-mode="estudio" type="button">Estudio</button>
+        <button class="focus-btn" data-focus-mode="practica" type="button">Práctica</button>
+        <button class="focus-btn" data-focus-mode="lab" type="button">Solo lab</button>
+      </div>
+      <button class="toggle-btn active" data-panel-target="code-panel" type="button">💻 Código</button>
+      <button class="toggle-btn active" data-panel-target="theory-panel" type="button">📖 Teoría</button>
+      <button class="toggle-btn active" data-panel-target="compiler-panel" id="toggle-lab-btn" type="button">▶️ Lab</button>
+      <button class="action-btn" id="btn-fullscreen-app" type="button">⛶ Pantalla completa</button>
+    </div>
+  </header>
+
+  <div class="main-workspace">
+    <button class="sidebar-toggle-rail" id="btn-toggle-sidebar" type="button" aria-expanded="true" aria-controls="sidebar-panel">
+      <span class="sidebar-toggle-icon">❮</span>
+      <span class="sidebar-toggle-label">Menú</span>
+    </button>
+    
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar" id="sidebar-panel">
+      <div class="sidebar-title">Unidades del Curso</div>
+      <div class="sidebar-tools">
+        <input
+          type="search"
+          id="lesson-search"
+          class="lesson-search"
+          placeholder="Buscar unidad, tema o palabra clave"
+          autocomplete="off"
+        >
+        <div class="search-hint">Filtra por nombre. El último punto abierto se recuerda automáticamente.</div>
+      </div>
+      <div class="course-progress">
+        <div class="progress-text">
+          <span id="progress-label">Progreso del curso</span>
+          <strong id="progress-stats">0/0</strong>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+      <ul class="lesson-list" id="lesson-list">
+        <!-- Generado por JS -->
+      </ul>
+    </aside>
+
+    <!-- ZONA CENTRAL DE TRABAJO -->
+    <div class="v-split-container">
+      
+      <!-- PANELES SUPERIORES (CÓDIGO VS TEORÍA) -->
+      <div class="upper-panels" id="upper-panels">
+        
+        <!-- VISOR DE CÓDIGO -->
+        <div class="panel" id="code-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>💻 Visor de Código (.java)</span>
+              <div class="panel-file" id="code-file-label">Sin archivo cargado</div>
+            </div>
+            <div class="panel-actions">
+              <button class="btn-secondary is-primary" id="btn-send-to-lab" type="button">Enviar al Lab</button>
+              <button class="btn-secondary" id="btn-open-programiz" type="button">Abrir Programiz</button>
+              <button class="btn-copy" id="btn-copy-code">Copiar Código</button>
+            </div>
+          </div>
+          <div class="panel-content">
+            <pre><code class="language-java" id="code-viewer">// Selecciona una lección en el menú de la izquierda...</code></pre>
+          </div>
+        </div>
+
+        <div class="resizer-v" id="resizer-v"></div>
+
+        <!-- VISOR DE TEORÍA -->
+        <div class="panel" id="theory-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>📖 Lección y Notas (.md)</span>
+              <div class="panel-file" id="theory-file-label">Sin archivo cargado</div>
+            </div>
+            <div class="panel-actions">
+              <button class="btn-mini is-hidden" id="btn-project-readme" type="button">Guía</button>
+              <button class="btn-mini is-hidden is-warm" id="btn-project-exercises" type="button">Ejercicios</button>
+              <button class="btn-mini is-hidden" id="btn-project-build" type="button">Copiar build</button>
+              <button class="btn-mini is-hidden" id="btn-project-run" type="button">Copiar run</button>
+              <button class="btn-secondary" id="btn-toggle-complete" type="button">Marcar completada</button>
+            </div>
+          </div>
+          <div class="panel-content markdown-body" id="theory-viewer">
+            <div class="loading">Cargando la primera lección...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="resizer-h" id="resizer-h"></div>
+
+      <!-- PANEL INFERIOR (COMPILADOR WEB) -->
+      <div class="panel" id="compiler-panel">
+        <div class="panel-header" style="background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(2,6,23,0.95));">
+          <div class="panel-title">
+            <span>▶️ Laboratorio / Terminal</span>
+            <div class="panel-file" id="compiler-engine-label">OneCompiler integrado + Programiz manual</div>
+          </div>
+        </div>
+        <iframe 
+          id="compiler-iframe" 
+          data-src="https://onecompiler.com/embed/java?theme=dark&listenToEvents=true&hideLanguageSelection=true&hideNew=true&hideNewFileOption=true&fontSize=15" 
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          allow="clipboard-read; clipboard-write"
+          title="Java Online Compiler Lab">
+        </iframe>
+        <div class="compiler-feedback" id="compiler-feedback">El laboratorio se abrirá al pulsar el botón o al mostrar el panel.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. CONFIGURACIÓN DEL ÍNDICE DE ARCHIVOS
+       ========================================================================= */
+    // Mapeo exhaustivo de tu directorio raíz.
+    // Cambia los nombres de archivo si los modificas en tu carpeta.
+    const lessons = [
+      { id: 0, section: 'Fundamentos', title: "UT0: Introducción", java: "UT0_IntroduccionJava.java", md: "📘_UT0_Guia_Instalacion_Entorno.md", labReady: true },
+      { id: 1, section: 'Fundamentos', title: "UT1: Variables y Tipos", java: "UT1_VariablesTiposOperadores.java", md: "📘_UT1_VariablesTiposOperadores.md", labReady: true },
+      { id: 2, section: 'Fundamentos', title: "UT2: Control de Flujo", java: "UT2_ControlFlujo.java", md: "📘_UT2_ControlFlujo.md", labReady: true },
+      { id: 3, section: 'Fundamentos', title: "UT3: Bucles", java: "UT3_Bucles.java", md: "📘_UT3_Bucles.md", labReady: true },
+      { id: 4, section: 'Fundamentos', title: "UT4: Funciones", java: "UT4_Funciones.java", md: "📘_UT4_Funciones.md", labReady: true },
+      { id: 5, section: 'Fundamentos', title: "UT5: Clases y Objetos", java: "UT5_ClasesObjetos.java", md: "📘_UT5_ClasesyObjetos.md", labReady: true },
+      { id: 6, section: 'Fundamentos', title: "UT6: Excepciones", java: "UT6_ExcepcionesManejoErrores.java", md: "📘_UT6_ExcepcionesyManejodeErrores.md", labReady: true },
+      { id: 7, section: 'Fundamentos', title: "UT7: Cadenas de Texto", java: "UT7_CadenasTexto.java", md: "📘_UT7_CadenasdeTexto.md", labReady: true },
+      { id: 8, section: 'Fundamentos', title: "UT8: Arrays y Strings", java: "UT8_ArraysYStrings.java", md: "📘_UT8_ArraysyStrings.md", labReady: true },
+      { id: 9, section: 'Fundamentos', title: "UT9: Regex y Avanzado", java: "UT9_StringsAvanzados.java", md: "📘_UT9_StringsAvanzadosyRegex.md", labReady: true },
+      { id: 10, section: 'Fundamentos', title: "UT10: Math y Fechas", java: "UT10_MathYFechas.java", md: "📘_UT10_MathyFechas.md", labReady: true },
+      { id: 11, section: 'Fundamentos', title: "UT11: Regex Práctico", java: "UT11_ExpresionesRegulares.java", md: "📘_UT11_ExpresionesRegulares.md", labReady: true },
+      { id: 12, section: 'Fundamentos', title: "UT12: Ficheros", java: "UT12_Ficheros.java", md: "📘_UT12_Ficheros.md", labReady: true },
+      { id: 13, section: 'Fundamentos', title: "UT13: Colecciones", java: "UT13_Colecciones.java", md: "📘_UT13_ColeccionesAvanzadas.md", labReady: true },
+      { id: 14, section: 'Fundamentos', title: "UT14: Enum y Constantes", java: "UT14_EnumYConstantes.java", md: "📘_UT14_EnumyConstantes.md", labReady: true },
+      { id: 15, section: 'Fundamentos', title: "UT15: Paquetes", java: "UT15_ModularidadYPaquetes.java", md: "📘_UT15_ModularidadyPaquetes.md", labReady: true },
+      { id: 16, section: 'Avanzado', title: "UT5b: POO Avanzada", java: "UT5_ClasesObjetosAvanzado.java", md: "📘_UT5b_ClasesObjetosAvanzado.md", labReady: true },
+      { id: 17, section: 'Avanzado', title: "UT5 Práctica: Ordenadores", java: "UT5_POO_Practica_Ordenadores.java", md: "📘_UT5b_ClasesObjetosAvanzado.md", labReady: true },
+      { id: 18, section: 'Avanzado', title: "UT5 Práctica: Red Social", java: "UT5_POO_Practica_RedSocial.java", md: "📘_UT5b_ClasesObjetosAvanzado.md", labReady: true },
+      { id: 19, section: 'Avanzado', title: "UT5 Recuperación", java: "UT5_POO_Ejercicios_Recuperacion.java", md: "📘_UT5_POO_Ejercicios_Recuperacion.md", labReady: true },
+      { id: 20, section: 'Avanzado', title: "UT6b: Testing con JUnit", java: "UT6b_Testing_JUnit.java", md: "📘_UT6b_Testing_JUnit.md", labReady: true },
+      { id: 21, section: 'Avanzado', title: "UT12b: Consumo APIs REST", java: "UT12b_ConsumoAPIs_REST.java", md: "📘_UT12b_ConsumoAPIs_REST.md", labReady: true },
+      { id: 22, section: 'Avanzado', title: "UT13b: Genéricos", java: "UT13b_Genericos.java", md: "📘_UT13b_Genericos.md", labReady: true },
+      { id: 23, section: 'Avanzado', title: "UT15b: Lambdas y Streams", java: "UT15b_LambdasYStreams.java", md: "📘_UT15b_LambdasYStreams.md", labReady: true },
+      { id: 24, section: 'Avanzado', title: "UT15c: Patrones de Diseño", java: "UT15c_PatronesDiseno.java", md: "📘_UT15c_PatronesDiseno.md", labReady: true },
+      { id: 25, section: 'Avanzado', title: "UT16: Proyecto Final", java: "UT16_ProyectoFinal.java", md: "📘_UT16_ProyectoFinal.md", labReady: true },
+      { id: 26, section: 'Avanzado', title: "UT17: Java SQL Básico", java: "UT17_JavaSQL_Basico_Sqlite.java", md: "📘_UT17_JavaSQL_Basico_Sqlite.md", labReady: true },
+      { id: 27, section: 'Avanzado', title: "UT18: Java SQL Intermedio", java: "UT18_JavaSQL_Intermedio_Sqlite.java", md: "📘_UT18_JavaSQL_Intermedio_Sqlite.md", labReady: true },
+      { id: 28, section: 'Avanzado', title: "UT19: Arquitectura por Capas", java: null, md: "📘_UT19_ArquitecturaCapas_JDBC_JUnit_Maven_Logging.md", labReady: false },
+      { id: 29, section: 'Avanzado', title: "UT20: Spring Boot REST JPA", java: null, md: "📘_UT20_SpringBoot_API_REST_JPA.md", labReady: false },
+      { id: 100, section: 'Proyecto Final', title: "PF0: Guía del Proyecto", java: null, md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Visión general, arquitectura MVC, CSV, reglas de negocio y cómo estudiarlo.' },
+      { id: 101, section: 'Proyecto Final', title: "PF1: Entrada y menú principal", java: "proyecto-final/src/com/curso/proyectofinal/Application.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Punto de entrada real del proyecto y navegación por consola.' },
+      { id: 102, section: 'Proyecto Final', title: "PF2: Vista de consola", java: "proyecto-final/src/com/curso/proyectofinal/view/ConsoleView.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Capa de presentación y utilidades de entrada/salida para la aplicación.' },
+      { id: 103, section: 'Proyecto Final', title: "PF3: Controlador de alumnos", java: "proyecto-final/src/com/curso/proyectofinal/controller/AlumnoController.java", md: "proyecto-final/EJERCICIOS.md", labReady: false, project: true, summary: 'Validación de email único, reglas básicas y relación entre capa de negocio y repositorio.' },
+      { id: 104, section: 'Proyecto Final', title: "PF4: Controlador de cursos", java: "proyecto-final/src/com/curso/proyectofinal/controller/CursoController.java", md: "proyecto-final/EJERCICIOS.md", labReady: false, project: true, summary: 'Enums, reglas temporales y validación de precio/fechas.' },
+      { id: 105, section: 'Proyecto Final', title: "PF5: Controlador de matrículas", java: "proyecto-final/src/com/curso/proyectofinal/controller/MatriculaController.java", md: "proyecto-final/EJERCICIOS.md", labReady: false, project: true, summary: 'Controller cruzado con validaciones entre alumno, curso y matrícula.' },
+      { id: 106, section: 'Proyecto Final', title: "PF6: Repositorio genérico", java: "proyecto-final/src/com/curso/proyectofinal/repository/Repository.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Contrato base CRUD para toda la capa de datos.' },
+      { id: 107, section: 'Proyecto Final', title: "PF7: Persistencia CSV", java: "proyecto-final/src/com/curso/proyectofinal/persistence/CsvUtils.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Lectura y escritura CSV del proyecto completo.' },
+      { id: 108, section: 'Proyecto Final', title: "PF8: Repositorio de alumnos", java: "proyecto-final/src/com/curso/proyectofinal/repository/AlumnoRepository.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Persistencia concreta, búsquedas y capa de acceso a datos para alumnos.' },
+      { id: 109, section: 'Proyecto Final', title: "PF9: Repositorio de cursos", java: "proyecto-final/src/com/curso/proyectofinal/repository/CursoRepository.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Gestión de cursos desde CSV y mapeo entre dominio y almacenamiento.' },
+      { id: 110, section: 'Proyecto Final', title: "PF10: Repositorio de matrículas", java: "proyecto-final/src/com/curso/proyectofinal/repository/MatriculaRepository.java", md: "proyecto-final/EJERCICIOS.md", labReady: false, project: true, summary: 'Persistencia del caso más cruzado del proyecto, con referencias entre entidades.' },
+      { id: 111, section: 'Proyecto Final', title: "PF11: Almacenamiento en fichero", java: "proyecto-final/src/com/curso/proyectofinal/persistence/FileStorage.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Capa baja de lectura y escritura sobre disco para soportar la persistencia CSV.' },
+      { id: 112, section: 'Proyecto Final', title: "PF12: Modelo Alumno", java: "proyecto-final/src/com/curso/proyectofinal/model/Alumno.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Entidad base con identidad, datos personales y apoyo para validaciones.' },
+      { id: 113, section: 'Proyecto Final', title: "PF13: Modelo Curso y tipo", java: "proyecto-final/src/com/curso/proyectofinal/model/Curso.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Curso como entidad de dominio; conviene leerlo junto a CursoTipo para ver el enum en acción.' },
+      { id: 114, section: 'Proyecto Final', title: "PF14: Modelo Matrícula y estado", java: "proyecto-final/src/com/curso/proyectofinal/model/Matricula.java", md: "proyecto-final/EJERCICIOS.md", labReady: false, project: true, summary: 'Entidad relacional del proyecto y su evolución de estado durante la gestión.' },
+      { id: 115, section: 'Proyecto Final', title: "PF15: Validaciones", java: "proyecto-final/src/com/curso/proyectofinal/util/Validator.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Reglas reutilizables de validación para email, campos obligatorios y condiciones comunes.' },
+      { id: 116, section: 'Proyecto Final', title: "PF16: Utilidades de fechas", java: "proyecto-final/src/com/curso/proyectofinal/util/DateUtils.java", md: "proyecto-final/README.md", labReady: false, project: true, summary: 'Apoyo transversal para parsing y control temporal del dominio.' },
+      { id: 117, section: 'Proyecto Final', title: "PF17: Excepción de dominio", java: "proyecto-final/src/com/curso/proyectofinal/exception/ValidationException.java", md: "proyecto-final/EJERCICIOS.md", labReady: false, project: true, summary: 'Error funcional propio del proyecto para separar fallos de negocio de fallos técnicos.' },
+      { id: 118, section: 'Proyecto Final', title: "PF18: Ejercicios guiados", java: null, md: "proyecto-final/EJERCICIOS.md", labReady: false, project: true, summary: 'Cuaderno completo de ejercicios para practicar sobre el proyecto real.' }
+    ];
+
+    /* =========================================================================
+       2. LÓGICA DE DIBUJADO Y FETCH DE ARCHIVOS
+       ========================================================================= */
+    const listElement = document.getElementById('lesson-list');
+    const codeViewer = document.getElementById('code-viewer');
+    const theoryViewer = document.getElementById('theory-viewer');
+    const lessonStatus = document.getElementById('lesson-status');
+    const lessonSearch = document.getElementById('lesson-search');
+    const sidebar = document.getElementById('sidebar-panel');
+    const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+    const btnFullscreenApp = document.getElementById('btn-fullscreen-app');
+    const compilerIframe = document.getElementById('compiler-iframe');
+    const compilerFeedback = document.getElementById('compiler-feedback');
+    const btnPrevLesson = document.getElementById('btn-prev-lesson');
+    const btnNextLesson = document.getElementById('btn-next-lesson');
+    const btnSendToLab = document.getElementById('btn-send-to-lab');
+    const btnOpenProgramiz = document.getElementById('btn-open-programiz');
+    const btnToggleComplete = document.getElementById('btn-toggle-complete');
+    const btnProjectReadme = document.getElementById('btn-project-readme');
+    const btnProjectExercises = document.getElementById('btn-project-exercises');
+    const btnProjectBuild = document.getElementById('btn-project-build');
+    const btnProjectRun = document.getElementById('btn-project-run');
+    const progressStats = document.getElementById('progress-stats');
+    const progressFill = document.getElementById('progress-fill');
+    const progressLabel = document.getElementById('progress-label');
+    const codeFileLabel = document.getElementById('code-file-label');
+    const theoryFileLabel = document.getElementById('theory-file-label');
+    const compilerEngineLabel = document.getElementById('compiler-engine-label');
+    const panelToggleButtons = Array.from(document.querySelectorAll('[data-panel-target]'));
+    const focusModeButtons = Array.from(document.querySelectorAll('[data-focus-mode]'));
+    const LAB_CONFIG = {
+      embedUrl: 'https://onecompiler.com/embed/java?theme=dark&listenToEvents=true&hideLanguageSelection=true&hideNew=true&hideNewFileOption=true&fontSize=15',
+      providerName: 'OneCompiler',
+      manualFallbackUrl: 'https://www.programiz.com/java-programming/online-compiler/'
+    };
+    const PROJECT_FINAL = {
+      readmeId: 100,
+      exercisesId: 118,
+      workdir: 'proyecto-final',
+      buildCommand: 'Set-Location ".\\\\proyecto-final"; .\\\\build.ps1',
+      runCommand: 'Set-Location ".\\\\proyecto-final"; cmd /c run.bat'
+    };
+    const STORAGE_KEYS = {
+      lessonId: 'java-platform:last-lesson-id',
+      search: 'java-platform:lesson-search',
+      codeWidth: 'java-platform:code-panel-width',
+      upperHeight: 'java-platform:upper-panels-height',
+      panels: 'java-platform:panel-visibility',
+      completedLessons: 'java-platform:completed-lessons',
+      sidebarCollapsed: 'java-platform:sidebar-collapsed',
+      focusMode: 'java-platform:focus-mode',
+      sectionState: 'java-platform:section-state'
+    };
+    let selectedLessonIndex = 0;
+    let currentFilter = '';
+    let compilerLoaded = false;
+    let compilerLoadPromise = null;
+    let currentCompilerMode = 'lab';
+    let currentFocusMode = 'todo';
+    let completedLessons = new Set();
+    let sectionState = {};
+    let lessonLoadToken = 0;
+
+    function normalizeFilename(name) {
+      return typeof name === 'string' ? name.normalize('NFC') : name;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    async function copyTextWithFeedback(text, successMessage, errorMessage) {
+      try {
+        await navigator.clipboard.writeText(text);
+        setCompilerFeedback(successMessage, 'success');
+      } catch (error) {
+        setCompilerFeedback(errorMessage, 'error');
+      }
+    }
+
+    function getCurrentLesson() {
+      return lessons[selectedLessonIndex] || null;
+    }
+
+    function isProjectLesson(lesson = getCurrentLesson()) {
+      return lesson?.project === true || lesson?.section === 'Proyecto Final';
+    }
+
+    function updateProjectShortcutVisibility(lesson = getCurrentLesson()) {
+      const show = isProjectLesson(lesson);
+      [btnProjectReadme, btnProjectExercises, btnProjectBuild, btnProjectRun].forEach((button) => {
+        button.classList.toggle('is-hidden', !show);
+      });
+    }
+
+    function buildContextCard(lesson) {
+      if (!lesson) return '';
+
+      if (isProjectLesson(lesson)) {
+        const tags = ['Proyecto multiarchivo', 'MVC', 'CSV', 'Consola', lesson.java ? 'Archivo real' : 'Guía / ejercicios'];
+        const summary = lesson.summary || 'Bloque completo de práctica sobre el proyecto final del curso.';
+        return `
+          <section class="context-card">
+            <h3>Proyecto Final · Práctica completa</h3>
+            <p>${escapeHtml(summary)}</p>
+            <div class="context-tags">
+              ${tags.map((tag) => `<span class="context-tag">${escapeHtml(tag)}</span>`).join('')}
+            </div>
+            <div class="context-actions">
+              <button class="btn-mini" type="button" data-context-action="readme">Abrir guía</button>
+              <button class="btn-mini is-warm" type="button" data-context-action="exercises">Abrir ejercicios</button>
+              <button class="btn-mini" type="button" data-context-action="build">Copiar build</button>
+              <button class="btn-mini" type="button" data-context-action="run">Copiar run</button>
+            </div>
+            <div class="context-note">
+              Este bloque se estudia aquí, pero se ejecuta en local. No se envía al lab porque depende de varios archivos, paquetes y datos CSV reales.
+            </div>
+          </section>
+        `;
+      }
+
+      if (lesson.section === 'Avanzado') {
+        return `
+          <section class="context-card">
+            <h3>Bloque avanzado</h3>
+            <p>Esta unidad amplía el temario base con práctica guiada, patrones más serios o arquitectura más cercana a proyectos reales.</p>
+            <div class="context-tags">
+              <span class="context-tag">Nivel avanzado</span>
+              <span class="context-tag">${lesson.java ? 'Con código' : 'Teoría / arquitectura'}</span>
+            </div>
+          </section>
+        `;
+      }
+
+      return '';
+    }
+
+    function getUnavailableContentHtml(filename, typeLabel) {
+      const safeFilename = escapeHtml(filename || 'este contenido');
+      const safeType = escapeHtml(typeLabel);
+      return `
+        <section class="content-unavailable">
+          <h3>Contenido no incluido en esta copia</h3>
+          <p><strong>${safeFilename}</strong> no está disponible ahora mismo en tu versión local del curso.</p>
+          <p>La plataforma mantiene toda la estructura general del temario, pero algunos bloques pueden no estar incluidos todavía según el material que tengas descargado.</p>
+          <div class="context-tags">
+            <span class="context-tag">${safeType}</span>
+            <span class="context-tag">Estructura del curso visible</span>
+            <span class="context-tag">Contenido no cargado</span>
+          </div>
+          <div class="context-note">No es un fallo de la plataforma. Simplemente este archivo todavía no forma parte de esta copia local del temario.</div>
+        </section>
+      `;
+    }
+
+    function loadCompletedLessons() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.completedLessons) || '[]');
+        completedLessons = new Set(saved.filter((value) => Number.isInteger(value)));
+      } catch (error) {
+        completedLessons = new Set();
+      }
+    }
+
+    function loadSectionState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.sectionState) || '{}');
+        sectionState = saved && typeof saved === 'object' ? saved : {};
+      } catch (error) {
+        sectionState = {};
+      }
+    }
+
+    function saveSectionState() {
+      localStorage.setItem(STORAGE_KEYS.sectionState, JSON.stringify(sectionState));
+    }
+
+    function getDefaultSectionExpanded(sectionName) {
+      return sectionName !== 'Proyecto Final';
+    }
+
+    function isSectionExpanded(sectionName) {
+      if (currentFilter) return true;
+      if (Object.prototype.hasOwnProperty.call(sectionState, sectionName)) {
+        return Boolean(sectionState[sectionName]);
+      }
+      return getDefaultSectionExpanded(sectionName);
+    }
+
+    function setSectionExpanded(sectionName, expanded) {
+      sectionState[sectionName] = expanded;
+      saveSectionState();
+      renderMenu();
+    }
+
+    function saveCompletedLessons() {
+      localStorage.setItem(
+        STORAGE_KEYS.completedLessons,
+        JSON.stringify(Array.from(completedLessons).sort((a, b) => a - b))
+      );
+    }
+
+    function isCurrentLessonCompleted() {
+      return completedLessons.has(lessons[selectedLessonIndex]?.id);
+    }
+
+    function updateCompleteButton() {
+      const isCompleted = isCurrentLessonCompleted();
+      btnToggleComplete.textContent = isCompleted ? 'Quitar completada' : 'Marcar completada';
+      btnToggleComplete.classList.toggle('is-active', isCompleted);
+      btnToggleComplete.setAttribute('aria-pressed', String(isCompleted));
+    }
+
+    function updateProgress() {
+      const completedCount = completedLessons.size;
+      const total = lessons.length;
+      const percentage = total ? Math.round((completedCount / total) * 100) : 0;
+      progressStats.textContent = `${completedCount}/${total}`;
+      progressLabel.textContent = `${percentage}% completado`;
+      progressFill.style.width = `${percentage}%`;
+    }
+
+    function getPanelButton(panelId) {
+      return panelToggleButtons.find((button) => button.dataset.panelTarget === panelId) || null;
+    }
+
+    function getPanelVisibility() {
+      return {
+        'code-panel': document.getElementById('code-panel').style.display !== 'none',
+        'theory-panel': document.getElementById('theory-panel').style.display !== 'none',
+        'compiler-panel': document.getElementById('compiler-panel').style.display !== 'none'
+      };
+    }
+
+    function persistPanelVisibility() {
+      localStorage.setItem(STORAGE_KEYS.panels, JSON.stringify(getPanelVisibility()));
+    }
+
+    function setPanelVisibility(panelId, isVisible) {
+      const panel = document.getElementById(panelId);
+      const button = getPanelButton(panelId);
+      if (!panel || !button) return;
+      panel.style.display = isVisible ? 'flex' : 'none';
+      button.classList.toggle('active', isVisible);
+    }
+
+    function setSidebarCollapsed(collapsed) {
+      sidebar.classList.toggle('collapsed', collapsed);
+      btnToggleSidebar.classList.toggle('is-collapsed', collapsed);
+      btnToggleSidebar.setAttribute('aria-expanded', String(!collapsed));
+      localStorage.setItem(STORAGE_KEYS.sidebarCollapsed, collapsed ? '1' : '0');
+    }
+
+    function updateFocusModeUI() {
+      focusModeButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.focusMode === currentFocusMode);
+      });
+    }
+
+    function setCustomFocusMode() {
+      currentFocusMode = 'custom';
+      updateFocusModeUI();
+      localStorage.setItem(STORAGE_KEYS.focusMode, currentFocusMode);
+    }
+
+    function applyFocusMode(mode, options = {}) {
+      const persist = options.persist !== false;
+      const focusMode = ['todo', 'estudio', 'practica', 'lab'].includes(mode) ? mode : 'todo';
+
+      currentFocusMode = focusMode;
+
+      if (focusMode === 'todo') {
+        setPanelVisibility('code-panel', true);
+        setPanelVisibility('theory-panel', true);
+        setPanelVisibility('compiler-panel', true);
+      }
+      if (focusMode === 'estudio') {
+        setPanelVisibility('code-panel', true);
+        setPanelVisibility('theory-panel', true);
+        setPanelVisibility('compiler-panel', false);
+      }
+      if (focusMode === 'practica') {
+        setPanelVisibility('code-panel', true);
+        setPanelVisibility('theory-panel', false);
+        setPanelVisibility('compiler-panel', true);
+      }
+      if (focusMode === 'lab') {
+        setPanelVisibility('code-panel', false);
+        setPanelVisibility('theory-panel', false);
+        setPanelVisibility('compiler-panel', true);
+      }
+
+      if (focusMode === 'practica' || focusMode === 'lab') {
+        setSidebarCollapsed(true);
+      } else if (focusMode === 'todo' || focusMode === 'estudio') {
+        setSidebarCollapsed(false);
+      }
+
+      persistPanelVisibility();
+      if (getPanelVisibility()['compiler-panel']) {
+        ensureCompilerLoaded(currentCompilerMode);
+      }
+      if (persist) {
+        localStorage.setItem(STORAGE_KEYS.focusMode, currentFocusMode);
+      }
+      updateFocusModeUI();
+      syncPanelLayout();
+    }
+
+    function updateFullscreenButton() {
+      const isFullscreen = Boolean(document.fullscreenElement);
+      btnFullscreenApp.classList.toggle('is-active', isFullscreen);
+      btnFullscreenApp.textContent = isFullscreen ? '✕ Salir pantalla completa' : '⛶ Pantalla completa';
+    }
+
+    function getPrimaryJavaFilename(sourceCode, fallbackName = 'Main.java') {
+      const match = sourceCode.match(/public\s+(?:final\s+|abstract\s+)?class\s+([A-Za-z_]\w*)/);
+      if (match?.[1]) {
+        return `${match[1]}.java`;
+      }
+      return fallbackName;
+    }
+
+    function revealPanel(panelId) {
+      const panel = document.getElementById(panelId);
+      const button = getPanelButton(panelId);
+      if (panel && panel.style.display === 'none') {
+        toggleView(panelId, button, { forceShow: true, skipCustomMode: true });
+      }
+    }
+
+    function updateCompilerModeUI() {
+      if (currentCompilerMode === 'programiz') {
+        compilerEngineLabel.textContent = 'Programiz embebido · pegado manual del código';
+        btnOpenProgramiz.classList.add('is-active');
+        btnSendToLab.classList.remove('is-active');
+      } else {
+        compilerEngineLabel.textContent = 'OneCompiler integrado + Programiz manual';
+        btnSendToLab.classList.add('is-active');
+        btnOpenProgramiz.classList.remove('is-active');
+      }
+    }
+
+    function updateCodeActionsAvailability(lesson) {
+      const hasJavaSource = Boolean(lesson?.java);
+      const labReady = Boolean(lesson?.labReady && hasJavaSource);
+      btnSendToLab.disabled = !labReady;
+      btnOpenProgramiz.disabled = !labReady;
+      document.getElementById('btn-copy-code').disabled = !hasJavaSource;
+      if (!hasJavaSource) {
+        codeFileLabel.textContent = 'Unidad teórica sin archivo Java principal';
+      }
+      updateProjectShortcutVisibility(lesson);
+    }
+
+    function setCompilerFeedback(message, type = '') {
+      compilerFeedback.textContent = message;
+      compilerFeedback.className = 'compiler-feedback';
+      if (type) {
+        compilerFeedback.classList.add(`is-${type}`);
+      }
+    }
+
+    function ensureCompilerLoaded(mode = 'lab', forceReload = false) {
+      const targetSrc = mode === 'programiz'
+        ? LAB_CONFIG.manualFallbackUrl
+        : (compilerIframe.dataset.src || LAB_CONFIG.embedUrl);
+
+      if (!forceReload && compilerLoadPromise && compilerLoaded && currentCompilerMode === mode) {
+        return compilerLoadPromise;
+      }
+
+      currentCompilerMode = mode;
+      updateCompilerModeUI();
+      compilerLoadPromise = new Promise((resolve, reject) => {
+        const timeoutId = window.setTimeout(() => {
+          compilerLoadPromise = null;
+          setCompilerFeedback(
+            mode === 'programiz'
+              ? 'Programiz tardó demasiado en cargar dentro del panel inferior.'
+              : 'El laboratorio tardó demasiado en cargar. Reintenta o usa Programiz manual.',
+            'error'
+          );
+          reject(new Error('compiler-load-timeout'));
+        }, 9000);
+
+        compilerIframe.addEventListener('load', () => {
+          window.clearTimeout(timeoutId);
+          setCompilerFeedback(
+            mode === 'programiz'
+              ? 'Programiz cargado abajo. Pega el código y ejecútalo allí.'
+              : 'Laboratorio listo. Ya puedes enviar el código y ejecutarlo dentro de la página.',
+            'success'
+          );
+          resolve();
+        }, { once: true });
+        compilerIframe.src = targetSrc;
+      });
+      compilerLoaded = true;
+      setCompilerFeedback(
+        mode === 'programiz' ? 'Abriendo Programiz dentro del panel inferior...' : 'Abriendo el laboratorio integrado...',
+        'info'
+      );
+      return compilerLoadPromise;
+    }
+
+    function initMenu() {
+      loadCompletedLessons();
+      loadSectionState();
+      currentFilter = (localStorage.getItem(STORAGE_KEYS.search) || '').trim().toLowerCase();
+      lessonSearch.value = currentFilter;
+      updateProgress();
+      currentFocusMode = localStorage.getItem(STORAGE_KEYS.focusMode) || 'todo';
+      updateFocusModeUI();
+      renderMenu();
+      const savedLessonId = Number(localStorage.getItem(STORAGE_KEYS.lessonId));
+      const lessonFromHash = getLessonIndexFromHash();
+      const initialIndex = Number.isInteger(lessonFromHash)
+        ? lessonFromHash
+        : (Number.isInteger(savedLessonId) && lessons.some(lesson => lesson.id === savedLessonId)
+          ? lessons.findIndex(lesson => lesson.id === savedLessonId)
+          : 0);
+      loadLesson(initialIndex);
+    }
+
+    function renderMenu() {
+      listElement.innerHTML = '';
+      const filteredLessons = lessons.filter((lesson) => {
+        const haystack = [
+          lesson.title,
+          lesson.section,
+          lesson.summary || '',
+          lesson.java || '',
+          lesson.md || ''
+        ].join(' ').toLowerCase();
+        return haystack.includes(currentFilter);
+      });
+
+      if (filteredLessons.length === 0) {
+        listElement.innerHTML = '<li class="empty-state">No hay resultados para esa búsqueda.</li>';
+        return;
+      }
+
+      const groups = filteredLessons.reduce((acc, lesson) => {
+        const key = lesson.section || 'Otros';
+        if (!acc.has(key)) acc.set(key, []);
+        acc.get(key).push(lesson);
+        return acc;
+      }, new Map());
+
+      groups.forEach((items, sectionName) => {
+        const group = document.createElement('li');
+        const expanded = isSectionExpanded(sectionName);
+        group.className = 'section-group';
+        if (!expanded) {
+          group.classList.add('is-collapsed');
+        }
+
+        const heading = document.createElement('button');
+        heading.className = 'section-heading';
+        heading.type = 'button';
+        heading.setAttribute('aria-expanded', String(expanded));
+        heading.innerHTML = `<span class="section-heading-label"><span class="section-heading-chevron">▾</span><span>${escapeHtml(sectionName)}</span></span><span class="section-heading-badge">${items.length} unidades</span>`;
+        heading.addEventListener('click', () => {
+          if (currentFilter) return;
+          setSectionExpanded(sectionName, !isSectionExpanded(sectionName));
+        });
+        group.appendChild(heading);
+
+        const sectionItems = document.createElement('ul');
+        sectionItems.className = 'section-items';
+
+        items.forEach((lesson) => {
+          const li = document.createElement('li');
+          li.className = 'lesson-item';
+          if (isProjectLesson(lesson)) {
+            li.classList.add('project-item');
+          }
+          li.textContent = lesson.title;
+          li.title = lesson.summary || `${lesson.section} · ${lesson.title}`;
+          li.tabIndex = 0;
+          if (completedLessons.has(lesson.id)) {
+            li.classList.add('is-complete');
+          }
+          if (lesson.id === lessons[selectedLessonIndex]?.id) {
+            li.classList.add('active');
+          }
+          li.onclick = () => loadLessonById(lesson.id);
+          li.onkeydown = (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              loadLessonById(lesson.id);
+            }
+          };
+          sectionItems.appendChild(li);
+        });
+
+        group.appendChild(sectionItems);
+        listElement.appendChild(group);
+      });
+
+      requestAnimationFrame(() => {
+        listElement.querySelector('.lesson-item.active')?.scrollIntoView({ block: 'nearest' });
+      });
+    }
+
+    function getLessonIndexFromHash() {
+      if (!window.location.hash.startsWith('#lesson-')) return null;
+      const lessonId = Number(window.location.hash.replace('#lesson-', ''));
+      const index = lessons.findIndex((lesson) => lesson.id === lessonId);
+      return index >= 0 ? index : null;
+    }
+
+    function updateLessonMeta() {
+      const lesson = lessons[selectedLessonIndex];
+      lessonStatus.textContent = `${selectedLessonIndex + 1}/${lessons.length} · ${lesson.section} · ${lesson.title}`;
+      btnPrevLesson.disabled = selectedLessonIndex === 0;
+      btnNextLesson.disabled = selectedLessonIndex === lessons.length - 1;
+      updateCompleteButton();
+      localStorage.setItem(STORAGE_KEYS.lessonId, String(lesson.id));
+      window.location.hash = `lesson-${lesson.id}`;
+      renderMenu();
+    }
+
+    function loadLessonById(lessonId) {
+      const lessonIndex = lessons.findIndex((lesson) => lesson.id === lessonId);
+      if (lessonIndex >= 0) {
+        loadLesson(lessonIndex);
+      }
+    }
+
+    async function loadFile(filename) {
+      if (!filename) return null;
+      try {
+        const response = await fetch('./' + encodeURIComponent(normalizeFilename(filename)).replace(/%2F/g, '/'));
+        if (!response.ok) {
+          return { ok: false, missing: true, filename, status: response.status };
+        }
+        return { ok: true, filename, text: await response.text() };
+      } catch (e) {
+        return { ok: false, missing: true, filename, status: 'network-error' };
+      }
+    }
+
+    async function loadLesson(index) {
+      const loadToken = ++lessonLoadToken;
+      selectedLessonIndex = index;
+      updateLessonMeta();
+      const lesson = lessons[index];
+      codeFileLabel.textContent = lesson.java ? normalizeFilename(lesson.java) : 'Unidad teórica sin archivo Java principal';
+      theoryFileLabel.textContent = normalizeFilename(lesson.md);
+      updateCodeActionsAvailability(lesson);
+
+      // Cargar Código Java
+      codeViewer.textContent = "// Cargando archivo...\n// Extrayendo el código en tiempo real de tu carpeta local.";
+      Prism.highlightElement(codeViewer);
+
+      theoryViewer.innerHTML = `<div class="loading">Cargando contenido dinámicamente...</div>`;
+
+      const [javaContent, mdContent] = await Promise.all([
+        lesson.java ? loadFile(lesson.java) : Promise.resolve(null),
+        loadFile(lesson.md)
+      ]);
+
+      if (loadToken !== lessonLoadToken) {
+        return;
+      }
+
+      if (javaContent?.ok && javaContent.text) {
+        codeViewer.textContent = javaContent.text;
+      } else if (!lesson.java) {
+        codeViewer.textContent = `// Esta unidad está orientada a teoría, arquitectura o proyecto.\n// Revisa la guía de la derecha para el contenido principal.\n// Si quieres practicar, cambia al modo "Práctica" o abre una unidad con código.`;
+      } else {
+        codeViewer.textContent = [
+          '// Contenido no incluido en esta copia del curso.',
+          `// Archivo esperado: ${lesson.java}`,
+          '// La estructura de la plataforma sigue visible,',
+          '// pero este bloque todavía no está cargado localmente.'
+        ].join('\n');
+      }
+      Prism.highlightElement(codeViewer); // Re-aplicar Highlighting de colores
+
+      // Cargar Markdown
+      if (mdContent?.ok && mdContent.text) {
+        // Renderizar el Markdown a HTML usando marked.js
+        theoryViewer.innerHTML = `${buildContextCard(lesson)}${marked.parse(mdContent.text)}`;
+      } else {
+        theoryViewer.innerHTML = `${buildContextCard(lesson)}${getUnavailableContentHtml(lesson.md, 'Teoría / notas')}`;
+      }
+
+      theoryViewer.querySelectorAll('[data-context-action]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const action = button.dataset.contextAction;
+          if (action === 'readme') loadLessonById(PROJECT_FINAL.readmeId);
+          if (action === 'exercises') loadLessonById(PROJECT_FINAL.exercisesId);
+          if (action === 'build') copyTextWithFeedback(PROJECT_FINAL.buildCommand, 'Comando de build copiado.', 'No se pudo copiar el comando de build.');
+          if (action === 'run') copyTextWithFeedback(PROJECT_FINAL.runCommand, 'Comando de ejecución copiado.', 'No se pudo copiar el comando de ejecución.');
+        });
+      });
+      
+      // Scrollear arriba del todo de los paneles independientemente
+      document.querySelector('#code-panel .panel-content').scrollTop = 0;
+      document.querySelector('#theory-panel .panel-content').scrollTop = 0;
+    }
+
+    /* =========================================================================
+       3. ATRIBUTOS UX EXTRAS (Copiar Portapapeles)
+       ========================================================================= */
+    document.getElementById('btn-copy-code').onclick = function() {
+      const originalText = this.textContent;
+      navigator.clipboard.writeText(codeViewer.textContent)
+        .then(() => {
+          this.textContent = "✔ ¡Copiado!";
+          this.style.background = "var(--accent)";
+          this.style.borderColor = "var(--accent)";
+        })
+        .catch(() => {
+          this.textContent = "No se pudo copiar";
+          this.style.background = "rgba(239,68,68,0.2)";
+          this.style.borderColor = "rgba(239,68,68,0.5)";
+        })
+        .finally(() => {
+          setTimeout(() => {
+            this.textContent = originalText;
+            this.style.background = "rgba(255,255,255,0.1)";
+            this.style.borderColor = "rgba(255,255,255,0.2)";
+          }, 2000);
+        });
+    };
+
+    btnToggleComplete.addEventListener('click', () => {
+      const lessonId = lessons[selectedLessonIndex]?.id;
+      if (!Number.isInteger(lessonId)) return;
+      if (completedLessons.has(lessonId)) {
+        completedLessons.delete(lessonId);
+      } else {
+        completedLessons.add(lessonId);
+      }
+      saveCompletedLessons();
+      updateCompleteButton();
+      updateProgress();
+      renderMenu();
+    });
+
+    btnProjectReadme.addEventListener('click', () => loadLessonById(PROJECT_FINAL.readmeId));
+    btnProjectExercises.addEventListener('click', () => loadLessonById(PROJECT_FINAL.exercisesId));
+    btnProjectBuild.addEventListener('click', () => {
+      copyTextWithFeedback(PROJECT_FINAL.buildCommand, 'Comando de build copiado.', 'No se pudo copiar el comando de build.');
+    });
+    btnProjectRun.addEventListener('click', () => {
+      copyTextWithFeedback(PROJECT_FINAL.runCommand, 'Comando de ejecución copiado.', 'No se pudo copiar el comando de ejecución.');
+    });
+
+    function getCurrentSourceCode() {
+      return codeViewer.textContent.trim();
+    }
+
+    async function sendCurrentCodeToLab() {
+      const sourceCode = getCurrentSourceCode();
+      if (!sourceCode || sourceCode.startsWith('// No se pudo cargar')) {
+        setCompilerFeedback('No hay código válido cargado para enviar al laboratorio.', 'error');
+        return;
+      }
+
+      btnSendToLab.disabled = true;
+      btnSendToLab.textContent = 'Sincronizando...';
+      setCompilerFeedback('Preparando el laboratorio y enviando el código...', 'info');
+
+      try {
+        revealPanel('compiler-panel');
+        await ensureCompilerLoaded('lab', currentCompilerMode !== 'lab');
+        await new Promise((resolve) => window.setTimeout(resolve, 250));
+
+        compilerIframe.contentWindow?.postMessage(
+          {
+            eventType: 'populateCode',
+            language: 'java',
+            files: [
+              {
+                name: getPrimaryJavaFilename(sourceCode),
+                content: sourceCode
+              }
+            ]
+          },
+          '*'
+        );
+
+        window.setTimeout(() => {
+          compilerIframe.contentWindow?.postMessage({ eventType: 'triggerRun' }, '*');
+        }, 220);
+
+        setCompilerFeedback('Código enviado al lab integrado. Se ha lanzado la ejecución automática.', 'success');
+      } catch (error) {
+        setCompilerFeedback('No se pudo sincronizar el código con el laboratorio integrado.', 'error');
+      } finally {
+        btnSendToLab.disabled = false;
+        btnSendToLab.textContent = 'Enviar al Lab';
+      }
+    }
+
+    async function openProgramizManually() {
+      const sourceCode = getCurrentSourceCode();
+      if (!sourceCode || sourceCode.startsWith('// No se pudo cargar')) {
+        setCompilerFeedback('No hay código válido para abrir en Programiz.', 'error');
+        return;
+      }
+
+      revealPanel('compiler-panel');
+
+      try {
+        await navigator.clipboard.writeText(sourceCode);
+        await ensureCompilerLoaded('programiz', currentCompilerMode !== 'programiz');
+        setCompilerFeedback('Programiz cargado abajo. El código está copiado para pegarlo allí con Ctrl+V.', 'success');
+      } catch (error) {
+        try {
+          await ensureCompilerLoaded('programiz', currentCompilerMode !== 'programiz');
+          setCompilerFeedback('Programiz cargado abajo, pero el navegador no permitió copiar el código automáticamente.', 'info');
+        } catch (loadError) {
+          setCompilerFeedback('No se pudo abrir Programiz dentro del panel inferior.', 'error');
+        }
+      }
+    }
+
+    btnSendToLab.addEventListener('click', sendCurrentCodeToLab);
+    btnOpenProgramiz.addEventListener('click', openProgramizManually);
+
+    /* =========================================================================
+       4. SISTEMA DE RESIZERS (Divisores de ventana arrastrables)
+       ========================================================================= */
+    const resizerV = document.getElementById('resizer-v');
+    const codePanel = document.getElementById('code-panel');
+    let isResizingV = false;
+
+    resizerV.addEventListener('mousedown', (e) => {
+      isResizingV = true;
+      document.body.style.cursor = 'col-resize';
+      document.getElementById('compiler-iframe').style.pointerEvents = 'none'; // Evitar llag al arraste sobre iframe
+    });
+
+    const resizerH = document.getElementById('resizer-h');
+    const upperPanels = document.getElementById('upper-panels');
+    let isResizingH = false;
+
+    resizerH.addEventListener('mousedown', (e) => {
+      isResizingH = true;
+      document.body.style.cursor = 'row-resize';
+      document.getElementById('compiler-iframe').style.pointerEvents = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isResizingV) {
+        // Redimensionar Ancho (Código vs Teoría)
+        let newWidth = e.clientX - codePanel.getBoundingClientRect().left;
+        if(newWidth > 200 && newWidth < window.innerWidth - 300) {
+          codePanel.style.width = newWidth + 'px';
+          codePanel.style.flex = 'none';
+          localStorage.setItem(STORAGE_KEYS.codeWidth, String(newWidth));
+        }
+      }
+      if (isResizingH) {
+        // Redimensionar Alto (Editor vs Iframe Compilador)
+        let newHeight = e.clientY - upperPanels.getBoundingClientRect().top;
+        if(newHeight > 100 && newHeight < window.innerHeight - 100) {
+          upperPanels.style.height = newHeight + 'px';
+          upperPanels.style.flex = 'none';
+          localStorage.setItem(STORAGE_KEYS.upperHeight, String(newHeight));
+        }
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if(isResizingV || isResizingH) {
+        isResizingV = false;
+        isResizingH = false;
+        document.body.style.cursor = 'default';
+        document.getElementById('compiler-iframe').style.pointerEvents = 'auto';
+      }
+    });
+
+    // Iniciar
+    function restoreLayoutState() {
+      const savedCodeWidth = Number(localStorage.getItem(STORAGE_KEYS.codeWidth));
+      const savedUpperHeight = Number(localStorage.getItem(STORAGE_KEYS.upperHeight));
+      const savedPanels = JSON.parse(localStorage.getItem(STORAGE_KEYS.panels) || '{}');
+      const isSidebarCollapsed = localStorage.getItem(STORAGE_KEYS.sidebarCollapsed) === '1';
+      const savedFocusMode = localStorage.getItem(STORAGE_KEYS.focusMode) || 'todo';
+
+      if (savedCodeWidth > 200) {
+        codePanel.style.width = savedCodeWidth + 'px';
+        codePanel.style.flex = 'none';
+      }
+      if (savedUpperHeight > 100) {
+        upperPanels.style.height = savedUpperHeight + 'px';
+        upperPanels.style.flex = 'none';
+      }
+
+      Object.entries(savedPanels).forEach(([panelId, isVisible]) => {
+        const panel = document.getElementById(panelId);
+        const button = getPanelButton(panelId);
+        if (panel && button) {
+          panel.style.display = isVisible ? 'flex' : 'none';
+          button.classList.toggle('active', Boolean(isVisible));
+        }
+      });
+
+      setSidebarCollapsed(isSidebarCollapsed);
+      updateCompilerModeUI();
+
+      if (savedPanels['compiler-panel'] !== false) {
+        ensureCompilerLoaded('lab');
+      }
+      if (savedFocusMode !== 'custom') {
+        applyFocusMode(savedFocusMode, { persist: false });
+      }
+      updateFullscreenButton();
+      syncPanelLayout();
+    }
+
+    function syncPanelLayout() {
+      const resV = document.getElementById('resizer-v');
+      const codeP = document.getElementById('code-panel');
+      const theoryP = document.getElementById('theory-panel');
+
+      if (codeP.style.display === 'none' || theoryP.style.display === 'none') {
+        resV.style.display = 'none';
+        codeP.style.width = '';
+        codeP.style.flex = '1';
+        theoryP.style.flex = '1';
+      } else {
+        resV.style.display = 'block';
+      }
+
+      const resH = document.getElementById('resizer-h');
+      const labP = document.getElementById('compiler-panel');
+      const upperP = document.getElementById('upper-panels');
+
+      if (labP.style.display === 'none') {
+        resH.style.display = 'none';
+        upperP.style.height = '';
+        upperP.style.flex = '1';
+      } else {
+        resH.style.display = 'block';
+      }
+    }
+
+    lessonSearch.addEventListener('input', (event) => {
+      currentFilter = event.target.value.trim().toLowerCase();
+      localStorage.setItem(STORAGE_KEYS.search, currentFilter);
+      renderMenu();
+    });
+
+    btnToggleSidebar.addEventListener('click', () => {
+      setSidebarCollapsed(!sidebar.classList.contains('collapsed'));
+    });
+
+    focusModeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        applyFocusMode(button.dataset.focusMode);
+      });
+    });
+
+    btnFullscreenApp.addEventListener('click', async () => {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (error) {
+        setCompilerFeedback('El navegador no permitió activar la pantalla completa.', 'error');
+      }
+    });
+
+    document.addEventListener('fullscreenchange', updateFullscreenButton);
+
+    panelToggleButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        toggleView(button.dataset.panelTarget, button);
+      });
+    });
+
+    btnPrevLesson.addEventListener('click', () => {
+      if (selectedLessonIndex > 0) {
+        loadLesson(selectedLessonIndex - 1);
+      }
+    });
+
+    btnNextLesson.addEventListener('click', () => {
+      if (selectedLessonIndex < lessons.length - 1) {
+        loadLesson(selectedLessonIndex + 1);
+      }
+    });
+
+    window.addEventListener('hashchange', () => {
+      const indexFromHash = getLessonIndexFromHash();
+      if (indexFromHash !== null && indexFromHash !== selectedLessonIndex) {
+        loadLesson(indexFromHash);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        lessonSearch.focus();
+        lessonSearch.select();
+        return;
+      }
+      if (event.target === lessonSearch) return;
+      if (event.key === 'ArrowLeft' && selectedLessonIndex > 0) {
+        loadLesson(selectedLessonIndex - 1);
+      }
+      if (event.key === 'ArrowRight' && selectedLessonIndex < lessons.length - 1) {
+        loadLesson(selectedLessonIndex + 1);
+      }
+      if (event.key.toLowerCase() === 'c') {
+        btnToggleComplete.click();
+      }
+      if (event.key.toLowerCase() === 'b') {
+        btnToggleSidebar.click();
+      }
+      if (event.key === 'F11') {
+        event.preventDefault();
+        btnFullscreenApp.click();
+      }
+    });
+
+    restoreLayoutState();
+    initMenu();
+
+    /* =========================================================================
+       5. SISTEMA DE OCULTACIÓN DE PANELES (TOGGLES)
+       ========================================================================= */
+    function toggleView(panelId, btnElement, options = {}) {
+      const panel = document.getElementById(panelId);
+      const forceShow = Boolean(options.forceShow);
+      const skipCustomMode = Boolean(options.skipCustomMode);
+      const isHiding = panel.style.display !== 'none' && !forceShow;
+      const visiblePanels = ['code-panel', 'theory-panel', 'compiler-panel']
+        .map((id) => document.getElementById(id))
+        .filter((currentPanel) => currentPanel.style.display !== 'none');
+      
+      if (isHiding && visiblePanels.length === 1) {
+        setCompilerFeedback('Debe quedar al menos un panel visible.', 'info');
+        return;
+      }
+
+      if(isHiding) {
+        panel.style.display = 'none';
+        btnElement.classList.remove('active');
+      } else {
+        panel.style.display = 'flex';
+        btnElement.classList.add('active');
+        if (panelId === 'compiler-panel') ensureCompilerLoaded(currentCompilerMode);
+      }
+      persistPanelVisibility();
+      if (!skipCustomMode) {
+        setCustomFocusMode();
+      }
+      syncPanelLayout();
+    }
+
+</script>
+</body>
+</html>
